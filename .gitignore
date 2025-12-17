@@ -4,3 +4,4 @@ server/node_modules/
 server/.env
 frontend/.env
 blog-app-82817-firebase-adminsdk-fbsvc-7463cad566.json
+server/requests.rest
