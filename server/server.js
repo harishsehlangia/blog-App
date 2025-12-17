@@ -8,6 +8,7 @@ import cors from 'cors';
 import admin from 'firebase-admin';
 import serviceAccountKey from './blog-app-82817-firebase-adminsdk-fbsvc-7463cad566.json' with { type: "json" };
 import { getAuth } from 'firebase-admin/auth';
+import aws from 'aws-sdk';
 
 // Schema
 import User from './Schema/User.js';
@@ -27,6 +28,13 @@ server.use(cors());
 
 mongoose.connect(process.env.DB_LOCATION, {
     autoIndex: true
+})
+
+//setting up s3 bucket
+const s3 = new aws.S3({
+    region: 'ap-south-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 })
 
 const formatDatatoSend = (user) => {
