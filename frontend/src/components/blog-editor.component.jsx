@@ -3,13 +3,14 @@ import logo from "../imgs/logo.png";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png"
 import { uploadImage } from "../common/aws";
-import { useRef } from "react";
+import { useContext } from "react";
 import { Toaster, toast } from "react-hot-toast";
+import { EditorContext } from "../pages/editor.pages";
 
 
 const BlogEditor = () => {
 
-    const blogBannerRef = useRef();
+    let { blog, blog: { title, banner, content, tags, des }, setBlog } = useContext(EditorContext);
 
     const handleBanner = (e) => {
         let img = e.target.files[0];
@@ -23,8 +24,8 @@ const BlogEditor = () => {
 
                     toast.dismiss(loadingToast);
                     toast.success("Uploaded 👍");
-                    blogBannerRef.current.src = url;
 
+                    setBlog({ ...blog, banner: url })
                 }
             })
             .catch(er => {
@@ -46,6 +47,14 @@ const BlogEditor = () => {
 
         input.style.height = 'auto';
         input.style.height = input.scrollHeight + "px";
+
+        setBlog({ ...blog, title: input.value })
+    }
+
+    const handleImgError = (e) => {
+        let img = e.target;
+
+        img.src = defaultBanner;
     }
 
     return(
@@ -55,7 +64,7 @@ const BlogEditor = () => {
                     <img src={logo} />
                 </Link>
                 <p className="max-md:hidden text-black line-clamp-1 w-full">
-                    New Blog
+                    { title.length ? title : "New Blog" }
                 </p>
 
                 <div className="flex gap-4 ml-auto">
@@ -74,9 +83,9 @@ const BlogEditor = () => {
                         <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
                             <label htmlFor="uploadbanner">
                                 <img
-                                    ref={blogBannerRef}
-                                    src={defaultBanner}
+                                    src={banner}
                                     className="z-20"
+                                    onError={handleImgError}
                                     />
                                 <input
                                     id="uploadbanner"
@@ -95,6 +104,8 @@ const BlogEditor = () => {
                             onKeyDown={handleTitleKeyDown}
                             onChange={handleTitleChange}
                         ></textarea>
+
+                        <hr className="w-full opacity-10 my-5" />
 
                     </div>
                 </section>
