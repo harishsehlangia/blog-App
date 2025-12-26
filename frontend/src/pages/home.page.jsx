@@ -1,6 +1,22 @@
+import AnimationWrapper from "../common/page-animation";
+
 const HomePage = () => {
     return(
-        <h1>Home Page Component Testing</h1>
+        <AnimationWrapper>
+            <section className="h-cover flex justify-center gap-10">
+                {/* latest blogs div */}
+                <div className="w-full">
+
+                    <InPageNavigation></InPageNavigation>
+
+                </div>
+
+                {/* filter and tending blogs div */}
+                <div>
+
+                </div>
+            </section>
+        </AnimationWrapper>
     )
 }
 
