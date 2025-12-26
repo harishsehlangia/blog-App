@@ -1,4 +1,5 @@
 import AnimationWrapper from "../common/page-animation";
+import InPageNavigation from "../components/inpage-navigation.component";
 
 const HomePage = () => {
     return(
@@ -7,7 +8,13 @@ const HomePage = () => {
                 {/* latest blogs div */}
                 <div className="w-full">
 
-                    <InPageNavigation></InPageNavigation>
+                    <InPageNavigation routes={["home", "trending blogs"]} defaultHidden={["trending blogs"]}>
+
+                        <h1>Latest Blog Here</h1>
+
+                        <h1>Trending Blog Here</h1>
+
+                    </InPageNavigation>
 
                 </div>
 
