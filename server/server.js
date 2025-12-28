@@ -13,6 +13,7 @@ import aws from 'aws-sdk';
 // Schema
 import User from './Schema/User.js';
 import Blog from './Schema/Blog.js';
+import { populate } from 'dotenv';
 
 const server = express();
 let PORT = 3000;
@@ -235,6 +236,24 @@ server.post("/google-auth", async (req, res) => {
     })
 })
 
+// Latest Blogs
+server.get('/latest-blogs', (req, res) => {
+
+    let maxLimit = 5;
+
+    Blog.find({ draft: false })
+    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+    .sort({ "publishedAt": -1 })
+    .select("blod_id title des banner activity tags publishedAt -_id")
+    .limit(maxLimit)
+    .then(blogs => {
+        return res.status(200).json({ blogs })
+    })
+    .catch(err => {
+        return res.status(500).json({ error: err.message })
+    })
+
+})
 
 // create blog
 server.post('/create-blog', verifyJWT, (req, res) => {
