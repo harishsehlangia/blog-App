@@ -261,7 +261,7 @@ server.get("/trending-blogs", (req, res) => {
     Blog.find({ draft: false })
     .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
     .sort({ "activity.total_read": -1, "activity.total_likes": -1, "publishedAt": -1 })
-    .select("blog_id publishedAt -_id")
+    .select("blog_id title publishedAt -_id")
     .limit(5)
     .then(blogs => {
         return res.status(200).json({ blogs })
