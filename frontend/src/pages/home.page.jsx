@@ -5,11 +5,15 @@ import { useEffect, useState } from "react";
 import Loader from "../components/loader.component";
 import BlogPostCard from "../components/blog-post.component";
 import MinimalBlogPost from "../components/nobanner-blog-post.component";
+import { activeTabRef } from "../components/inpage-navigation.component";
 
 const HomePage = () => {
 
     let [ blogs, setBlogs ] = useState(null);
     let [ trendingBlogs, setTrendingBlogs ] = useState(null);
+    let [ pageState, setPageState ] = useState("home");
+
+    let categories = ["cooking", "running", "nature", "well being", "social media", "finances", "tech", "travel"];
 
     const fetchLatestBlogs = () => {
         axios.get(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs")
@@ -31,10 +35,33 @@ const HomePage = () => {
         })
     }
 
+    const loadBlogByCategory = (e) => {
+        let category = e.target.innerText.toLowerCase();
+
+        setBlogs(null);
+
+        if(pageState == category) {
+            setPageState("home");
+            return;
+        }
+
+        setPageState(category);
+    }
+
     useEffect(() => {
-        fetchLatestBlogs();
-        fetchTrendingBlogs();
-    }, [])
+
+        activeTabRef.current.click();
+
+        if(pageState == "home"){
+            fetchLatestBlogs();
+        }
+
+        if(!trendingBlogs){
+            fetchTrendingBlogs();
+        }
+
+        
+    }, [pageState])
 
     return(
         <AnimationWrapper>
@@ -42,7 +69,7 @@ const HomePage = () => {
                 {/* latest blogs div */}
                 <div className="w-full">
 
-                    <InPageNavigation routes={["home", "trending blogs"]} defaultHidden={["trending blogs"]}>
+                    <InPageNavigation routes={[pageState, "trending blogs"]} defaultHidden={["trending blogs"]}>
 
                         {/* Home page - Latest blogs section */}
                         <>
@@ -72,8 +99,39 @@ const HomePage = () => {
                 </div>
 
                 {/* filter and trending blogs div */}
-                <div>
+                <div className="min-w-[40%] lg:min-w-[400px] max-w-min border-l border-grey pl-8 pt-3 max-md:hidden"> 
+                    <div className="flex flex-col gap-10">
+                        <div>
+                            <h1 className="font-medium text-xl mb-8">
+                                Stories from all interests
+                            </h1>
 
+                            <div className="flex gap-3 flex-wrap">
+                                {
+                                    categories.map((category, i) => {
+                                        return <button onClick={loadBlogByCategory} className={"tag" + (pageState == category ? " bg-black text-white " : " ")} key={i}>
+                                            { category }
+                                        </button>
+                                    })
+                                }
+                            </div>
+                        </div>
+
+                        <div>
+
+                            <h1 className="font-medium text-xl mb-8">Trending <i className="fi fi-rr-arrow-trend-up"></i></h1>
+
+                            {
+                            trendingBlogs == null ? <Loader /> :
+                            trendingBlogs.map((blog, i) => {
+                                return <AnimationWrapper key={i} transition={{ duration: 1, delay: i*.1 }}>
+                                    <MinimalBlogPost blog={blog} index={i} />
+                                </AnimationWrapper>
+                            })   
+                            }
+
+                        </div>
+                    </div>
                 </div>
             </section>
         </AnimationWrapper>
