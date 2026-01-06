@@ -4,8 +4,6 @@ import { getDay } from "../common/date";
 const MinimalBlogPost = ({ blog, index }) => {
     
     let { title, blog_id: id, author: { personal_info: { fullname, username, profile_img } }, publishedAt } = blog;
-    
-    console.log("TITLE:", title);
 
     return(
         <Link to={`blog/${id}`} className="flex gap-5 mb-8">
