@@ -6,3 +6,9 @@ export const getDay = (timeStamp) => {
 
     return `${date.getDate()} ${months[date.getMonth()]}`
 }
+
+export const getFullDay = (timeStamp) => {
+    let date = new Date(timeStamp);
+
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+}
