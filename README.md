@@ -54,6 +54,7 @@ Core features are being built step‑by‑step with a focus on clean architectur
 * Publish flow setup
 * AWS S3 image upload using signed URLs
 * Secure environment variable handling
+* Pagination
 
 ---
 
