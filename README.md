@@ -7,8 +7,8 @@ A full‑stack blog application currently under active development.
 ## 🚧 Project Status
 
 **In Progress**
-Core features are being built step‑by‑step with a focus on clean architecture and real‑world practices.
-
+Core authentication, user profiles, blog fetching, routing, and UI animations are implemented.
+Advanced blog features and polishing are in progress.
 ---
 
 ## 🛠️ Technologies Used
@@ -18,6 +18,8 @@ Core features are being built step‑by‑step with a focus on clean architectur
 * **React.js** – UI development
 * **React Router** – Routing and protected pages
 * **Context API** – Global authentication state
+* * **Axios** – API communication
+* **Page Animations** – Smooth route transitions
 
 ### Backend
 
@@ -25,6 +27,7 @@ Core features are being built step‑by‑step with a focus on clean architectur
 * **Express.js** – REST API framework
 * **MongoDB** – Database
 * **Mongoose** – ODM for MongoDB
+* * **MVC-style structure** – Controllers, routes, models
 
 ### Authentication
 
@@ -55,26 +58,47 @@ Core features are being built step‑by‑step with a focus on clean architectur
 * AWS S3 image upload using signed URLs
 * Secure environment variable handling
 * Pagination
+* * User signup & login
+* User profile page
+* About user section
+* User routes
+* Blog page route
+* Get-blog API
+* Blog rendering
+* Page-to-page animations
+* Loader component
+* Responsive navbar
+* 404 (Not Found) page
+
 
 ---
 
 ## 📌 What I’m Currently Working On
 
-* Improving editor & publish workflow
-* UI refinements
-* Backend validations
-* Better error handling
+* * Blog creation & editor improvements
+* Blog publish workflow
+* Backend validations & error handling
+* Performance & UI polish
+
 
 ---
 
 ## 🔮 Planned Features
 
 * Draft saving
-* Blog listing & reading pages
 * Likes and comments
-* User profiles
 * Search & filtering
+* Follow system
 * Deployment
+
+## 🎯 Learning Objectives
+
+* Building a real-world MERN stack application
+* Implementing authentication & authorization
+* Structuring scalable backend APIs
+* Managing global state in React
+* Handling media uploads securely
+
 
 ---
 
