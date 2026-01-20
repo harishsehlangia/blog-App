@@ -16,7 +16,7 @@ import Blog from './Schema/Blog.js';
 import { populate } from 'dotenv';
 
 const server = express();
-let PORT = 3000;
+let PORT = process.env.PORT || 3000;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccountKey)
@@ -437,6 +437,7 @@ server.post('/create-blog', verifyJWT, (req, res) => {
 
 })
 
+// blog page
 server.post("/get-blog", (req, res) => {
 
     let { blog_id } = req.body;
@@ -444,7 +445,7 @@ server.post("/get-blog", (req, res) => {
     let incrementVal = 1;
 
     Blog.findOneAndUpdate({ blog_id }, { $inc : { "activity.total_reads": incrementVal } })
-    .populate("author", "personal_info.fullname personal_info.username personal_info.profile_pic")
+    .populate("author", "personal_info.fullname personal_info.username personal_info.profile_img")
     .select("title des content banner activity publishedAt blog_id tags")
     .then(blog => {
 
