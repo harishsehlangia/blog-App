@@ -26,7 +26,7 @@ const BlogEditor = () => {
                 data: content,
                 tools: tools,
                 placeholder: "Let's write an awsome story"
-            }))
+            }));
         }
     }, [])
 
@@ -46,7 +46,7 @@ const BlogEditor = () => {
                     setBlog({ ...blog, banner: url })
                 }
             })
-            .catch(er => {
+            .catch(err => {
                 toast.dismiss(loadingToast);
                 toast.error(err);
             })
