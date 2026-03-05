@@ -835,6 +835,7 @@ server.post("/delete-comment", verifyJWT, (req, res) => {
 
 })
 
+// Red dot over bell icon
 server.get("/new-notification", verifyJWT, (req, res) => {
 
     let user_id = req.user;
@@ -850,6 +851,68 @@ server.get("/new-notification", verifyJWT, (req, res) => {
     .catch(err => {
         console.log(err.message);
         return res.status(500).json({ error: err.message })
+    })
+
+})
+
+server.post("notificatons", verifyJWT, (req, res) => {
+
+    let user_id = req.id;
+
+    let { page, filter, deletedDocCount } = req.body;
+
+    let maxLimit = 10;
+
+    let findQuery = { notification_for: user_id, user: { $ne: user_id } }
+
+    let skipDocs = (page - 1) * maxLimit;
+
+    if(filter != all){
+        findQuery.type = filter;
+    }
+
+    if(deletedDocCount){
+        skipDocs -= deletedDocCount;
+    }
+
+    Notification.find(findQuery)
+    .skip(skipDocs)
+    .limit(maxLimit)
+    .populate("blog", "title blog_id")
+    .populate("user", "personal_info.fullname personal_info.username personal_info.profile_img")
+    .populate("comment", "comment")
+    .populate("replied_0n_comment", "comment")
+    .populate("reply", "comment")
+    .sort({ createdAt: -1 })
+    .select("createdAt type seen reply")
+    .then(notifications => {
+        return res.status(200).json({ notifications })
+    })
+    .catch(err => {
+        console.log(err.message);
+        return res.status(500).json({ error: err.message });
+    })
+
+})
+
+server.post("/all-notifications-count", verifyJWT, (req, res) => {
+
+    let user_id = req.user;
+
+    let { filter } = req.filter;
+
+    let findQuery = { notification_for: user_id, user: { $ne: user_id } }
+
+    if(filter != 'all'){
+        findQuery.type = filter;
+    }
+
+    Notification.countDocuments(findQuery)
+    .then(count => {
+        return res.status(200).json({ totalDocs: count });
+    })
+    .catch(err => {
+        return res.status(500).json({error: err.message})
     })
 
 })
