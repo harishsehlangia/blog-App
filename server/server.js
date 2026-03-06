@@ -855,9 +855,9 @@ server.get("/new-notification", verifyJWT, (req, res) => {
 
 })
 
-server.post("notificatons", verifyJWT, (req, res) => {
+server.post("/notifications", verifyJWT, (req, res) => {
 
-    let user_id = req.id;
+    let user_id = req.user;
 
     let { page, filter, deletedDocCount } = req.body;
 
@@ -867,7 +867,7 @@ server.post("notificatons", verifyJWT, (req, res) => {
 
     let skipDocs = (page - 1) * maxLimit;
 
-    if(filter != all){
+    if(filter != 'all'){
         findQuery.type = filter;
     }
 
@@ -881,7 +881,7 @@ server.post("notificatons", verifyJWT, (req, res) => {
     .populate("blog", "title blog_id")
     .populate("user", "personal_info.fullname personal_info.username personal_info.profile_img")
     .populate("comment", "comment")
-    .populate("replied_0n_comment", "comment")
+    .populate("replied_on_comment", "comment")
     .populate("reply", "comment")
     .sort({ createdAt: -1 })
     .select("createdAt type seen reply")
@@ -899,7 +899,7 @@ server.post("/all-notifications-count", verifyJWT, (req, res) => {
 
     let user_id = req.user;
 
-    let { filter } = req.filter;
+    let { filter } = req.body;
 
     let findQuery = { notification_for: user_id, user: { $ne: user_id } }
 
