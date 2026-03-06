@@ -2,6 +2,11 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../App";
 import { filterPaginationData } from "../common/filter-pagination-data";
+import Loader from "../components/loader.component";
+import AnimationWrapper from "../common/page-animation";
+import NoDataMessage from "../components/nodata.component";
+import NotificationCard from "../components/notification-card.component";
+import LoadMoreDataBtn from "../components/load-more.component";
 
 const Notifications = () => {
 
@@ -21,8 +26,6 @@ const Notifications = () => {
         })
         .then(async ({ data: { notifications: data } }) => {
 
-            console.log(data);
-
             let formatedData = await filterPaginationData({
                 state: notifications,
                 data, page,
@@ -32,7 +35,6 @@ const Notifications = () => {
             })
 
             setNotifications(formatedData)
-            console.log(formatedData);
 
         })
         .catch(err => {
@@ -72,6 +74,23 @@ const Notifications = () => {
                     })
                 }
             </div>
+
+            {
+                notifications == null ? <Loader /> : 
+                <>
+                    {
+                        notifications.results.length ? 
+                            notifications.results.map((notification, i) => {
+                                return <AnimationWrapper key={i} transition={{ delay: i*0.08 }}>
+                                    <NotificationCard data={notification} index={i} notificationState={{ notifications, setNotifications }} />
+                                </AnimationWrapper>
+                            })
+                        : <NoDataMessage message="Nothing available" />
+                    }
+
+                    <LoadMoreDataBtn state={notifications} fetchDataFun={fetchNotifications} additionalParam={{ deletedDocCount: notifications.deletedDocCount }} />
+                </>
+            }
 
         </div>
     )
