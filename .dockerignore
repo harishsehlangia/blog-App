@@ -1,0 +1,31 @@
+# Frontend (not needed for backend build)
+frontend/
+
+# Server node_modules (rebuilt inside Docker)
+server/node_modules/
+
+# Version control
+.git/
+.gitignore
+
+# Environment files (injected at runtime via Cloud Run)
+server/.env
+server/.env.*
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Dev tooling
+*.md
+server/requests.rest
+
+# Firebase service account key (use Secret Manager in production)
+server/blog-app-82817-firebase-adminsdk-fbsvc-7463cad566.json
+
+# OS artifacts
+.DS_Store
+Thumbs.db
