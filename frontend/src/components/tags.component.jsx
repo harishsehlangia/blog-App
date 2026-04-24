@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { EditorContext } from "../pages/editor.pages";
+import Icon from "./Icon";
 
 const Tag = ({ tag, tagIndex }) => {
     
@@ -37,7 +38,7 @@ const Tag = ({ tag, tagIndex }) => {
                 className="mt-[2px] rounded-full absolute right-3 top-1/2 -translate-y-1/2"
                 onClick={handleTagDelete}
             >
-                <i className="fi fi-br-cross text-sm pointer-events-none"></i>
+                <Icon name="close" className="text-sm pointer-events-none" />
             </button>
         </div>
     )

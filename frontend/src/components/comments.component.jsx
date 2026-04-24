@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { BlogContext } from "../pages/blog.page";
 import CommentField from "./comment-field.component";
 import api from "../common/api";
+import Icon from "./Icon";
 import NoDataMessage from "./nodata.component";
 import AnimationWrapper from "../common/page-animation";
 import CommentCard from "./comment-card.component";
@@ -55,7 +56,7 @@ const CommentsContainer = () => {
                     onClick={() => setCommentsWrapper(preVal => !preVal)}
                     className="absolute top-0 right-0 flex justify-center items-center w-12 h-12 rounded-full bg-grey"
                 >
-                    <i className="fi fi-br-cross text-2xl mt-1"></i>
+                    <Icon name="close" className="text-2xl" />
                 </button>
             </div>
 

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 import { Toaster, toast } from "react-hot-toast";
 import api from "../common/api";
+import Icon from "./Icon";
 
 
 const BlogInteraction = () => {
@@ -71,7 +72,7 @@ const BlogInteraction = () => {
                         onClick={handleLike}
                         className={"w-10 h-10 rounded-full flex items-center justify-center " + ( isLikedByUser ? "bg-red/20 text-red" : "bg-grey/80" )}
                     >
-                        <i className={"fi " + ( isLikedByUser ? "fi-sr-heart" : "fi-rr-heart" )}></i>
+                        <Icon name="favorite" filled={isLikedByUser} />
                     </button>
                     <p className="text-xl text-dark-grey">{total_likes}</p>
 
@@ -80,7 +81,7 @@ const BlogInteraction = () => {
                         onClick={() => setCommentsWrapper(preVal => !preVal)}
                         className="w-10 h-10 rounded-full flex items-center justify-center bg-grey/80"
                     >
-                        <i className="fi fi-rr-comment-dots"></i>
+                        <Icon name="chat_bubble" />
                     </button>
                     <p className="text-xl text-dark-grey">{total_comments}</p>
 
@@ -93,7 +94,11 @@ const BlogInteraction = () => {
                         <Link to={`/editor/${blog_id}`} className="underline hover:text-purple">Edit</Link> : ""
                     }
 
-                    <Link to={`https://x.com/intent/tweet?text=Read${title}&url=${location.href}`}> <i><i className="fi fi-brands-twitter text-xl hover:text-twitter"></i></i> </Link>
+                    <Link to={`https://x.com/intent/tweet?text=Read${title}&url=${location.href}`} aria-label="Share on X">
+                        <svg role="img" viewBox="0 0 24 24" className="w-5 h-5 fill-current text-dark-grey hover:text-black" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                        </svg>
+                    </Link>
                 </div>
             </div>
 

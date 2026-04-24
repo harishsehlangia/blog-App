@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Icon from "./Icon";
 
 const InputBox = ({ name, type, id, value, placeholder, icon, disable=false, className="" }) => {
     
@@ -16,13 +17,16 @@ const InputBox = ({ name, type, id, value, placeholder, icon, disable=false, cla
                 className={`input-box ${className}`}
             />
 
-            <i className={"fi " + icon + " input-icon"}></i>
+            <Icon name={icon} className="input-icon" />
 
             {
                 type == "password" ?
-                <i className={"fi " + (!passwordVisible ? "fi-rr-eye-crossed" : "fi-rr-eye") + " input-icon left-[auto] right-4 cursor-pointer"}
-                onClick={()=>setPasswordVisible(currentVal => !currentVal)}
-                ></i>
+                <Icon 
+                    name={!passwordVisible ? "visibility_off" : "visibility"} 
+                    className="input-icon left-[auto] right-4 cursor-pointer"
+                    ariaLabel={passwordVisible ? "Hide password" : "Show password"}
+                    onClick={()=>setPasswordVisible(currentVal => !currentVal)}
+                />
                 : ""
             }
 

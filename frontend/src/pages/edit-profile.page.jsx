@@ -176,14 +176,14 @@ const EditProfile = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 md:gap-5">
                                 <div>
-                                    <InputBox name="fullname" type="text" value={fullname} placeholder="Full Name" disable={true} icon="fi-rr-user" />  
+                                    <InputBox name="fullname" type="text" value={fullname} placeholder="Full Name" disable={true} icon="person" />  
                                 </div>
                                 <div>
-                                    <InputBox name="email" type="email" value={email} placeholder="Email" disable={true} icon="fi-rr-envelope" />  
+                                    <InputBox name="email" type="email" value={email} placeholder="Email" disable={true} icon="mail" />  
                                 </div>
                             </div>
 
-                            <InputBox type="text" name="username" value={profile_username} placeholder="Username" icon="fi-rr-at" />
+                            <InputBox type="text" name="username" value={profile_username} placeholder="Username" icon="alternate_email" />
 
                             <p className="text-dark-grey -mt-3">Username will use to search user and will be visible to all users</p>
 
@@ -202,7 +202,9 @@ const EditProfile = () => {
                                         let link = social_links[key];
                                         let coustomPlaceholder = `https://${key}.com/username`
 
-                                        return <InputBox key={i} name={key} type="text" value={link} placeholder={coustomPlaceholder} icon={"fi " + (key != 'website' ? "fi-brands-" + key : "fi-rr-globe")} className="placeholder:text-dark-grey placeholder:opacity-70" />
+                                        const socialIconMap = { youtube: 'smart_display', facebook: 'group', twitter: 'tag', github: 'code', instagram: 'photo_camera', website: 'language' };
+
+                                        return <InputBox key={key} name={key} type="text" value={link} placeholder={coustomPlaceholder} icon={socialIconMap[key] || 'link'} className="placeholder:text-dark-grey placeholder:opacity-70" />
 
                                     })
 

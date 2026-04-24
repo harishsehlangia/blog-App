@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import usePageTitle from "../common/usePageTitle";
+import Icon from "../components/Icon";
 import { UserContext } from "../App";
 import { filterPaginationData } from "../common/filter-pagination-data";
 import api from "../common/api";
@@ -99,7 +100,7 @@ const ManageBlogs = () => {
                     onKeyDown={handleSearch}
                 />
 
-                <i className="fi fi-rr-search absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey "></i>
+                <Icon name="search" className="absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey" />
             </div>
 
             <InPageNavigation routes={["Published Blogs", "Draft Blogs"]} defaultActiveIndex={ activeTab != 'draft' ? 0 : 1 }>

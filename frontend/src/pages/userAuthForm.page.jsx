@@ -112,7 +112,7 @@ const UserAuthForm = ( {type} ) => {
                             name="fullname"
                             type="text"
                             placeholder="full name"
-                            icon="fi-rr-user"
+                            icon="person"
                         />
                         : ""
                     }
@@ -121,14 +121,14 @@ const UserAuthForm = ( {type} ) => {
                         name="email"
                         type="text"
                         placeholder="Email"
-                        icon="fi-rr-envelope"
+                        icon="mail"
                     />
 
                     <InputBox 
                         name="password"
                         type="password"
                         placeholder="Password"
-                        icon="fi-rr-key"
+                        icon="key"
                     />
 
                     <button

@@ -3,6 +3,7 @@ import AnimationWrapper from "../common/page-animation";
 import { useContext } from "react";
 import { EditorContext } from "../pages/editor.pages";
 import Tag from "./tags.component";
+import Icon from "./Icon";
 import api from "../common/api";
 import { UserContext } from "../App";
 import { useNavigate, useParams } from "react-router-dom";
@@ -117,7 +118,7 @@ const PublishForm = () => {
                 <button className="w-12 h-12 absolute right-[5vw] z-10 top-[5%] lg:top-[10%]"
                     onClick={handleCloseEvent}
                 >
-                    <i className="fi fi-br-cross"></i>
+                    <Icon name="close" />
                 </button>
 
                 <div className="max-w-[550px] center mt-2"> {/*---mt-2*/}

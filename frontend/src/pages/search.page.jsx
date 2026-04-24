@@ -9,6 +9,7 @@ import LoadMoreDataBtn from "../components/load-more.component";
 import { filterPaginationData } from "../common/filter-pagination-data";
 
 import usePageTitle from "../common/usePageTitle";
+import Icon from "../components/Icon";
 import api from "../common/api";
 import UserCard from "../components/usercard.component";
 
@@ -120,7 +121,7 @@ const SearchPage = () => {
 
             <h1 className="font-medium text-xl mb-8">
                 User related to search
-                <i className="fi fi-rr-user mt-1 pl-1.5"></i>
+                <Icon name="person" className="mt-1 pl-1.5" />
             </h1>
 
             <UserCardWrapper />

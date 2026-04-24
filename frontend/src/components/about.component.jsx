@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { getFullDay } from "../common/date";
+import Icon from "./Icon";
+import SocialIcon from "./SocialIcon";
 
 const AboutUser = ({ className, bio, social_links, joinedAt }) => {
     return(
@@ -12,11 +14,17 @@ const AboutUser = ({ className, bio, social_links, joinedAt }) => {
 
                         let link = social_links[key];
 
-                        return link ? 
-                               <Link to={link} key={key} target="_blank">
-                               <i className={"fi " + (key != 'website' ? "fi-brands-" + key : "fi-rr-globe") + " text-2xl hover:text-black"}></i>
-                               </Link> : " "
+                        if (!link) return null;
 
+                        if (key === 'website') {
+                            return (
+                                <Link to={link} key={key} target="_blank" aria-label="Website">
+                                    <Icon name="language" className="text-2xl hover:text-black" />
+                                </Link>
+                            );
+                        }
+
+                        return <SocialIcon key={key} platform={key} url={link} className="!w-6 !h-6" />;
                     })
                 }
             </div>

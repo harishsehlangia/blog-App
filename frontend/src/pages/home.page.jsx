@@ -1,5 +1,6 @@
 import api from "../common/api";
 import usePageTitle from "../common/usePageTitle";
+import Icon from "../components/Icon";
 import AnimationWrapper from "../common/page-animation";
 import InPageNavigation from "../components/inpage-navigation.component";
 import { useEffect, useState } from "react";
@@ -189,7 +190,7 @@ const HomePage = () => {
 
             <div>
               <h1 className="font-medium text-xl mb-8">
-                Trending <i className="fi fi-rr-arrow-trend-up"></i>
+                Trending <Icon name="trending_up" />
               </h1>
 
               {trendingBlogs == null ? (

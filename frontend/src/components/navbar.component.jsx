@@ -6,6 +6,7 @@ import { ThemeContext, UserContext } from "../App";
 import UserNavigationPanel from "./user-navigation.component";
 import api from "../common/api";
 import { storeInSession } from "../common/session";
+import Icon from "./Icon";
 
 const Navbar = () => {
 
@@ -76,26 +77,26 @@ const Navbar = () => {
                         onKeyDown={handleSearch}  
                     />
 
-                    <i className="fi fi-rr-search absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2    text-xl text-dark-grey"></i>
+                    <Icon name="search" className="absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey" />
                 </div>
 
                 <div className="flex items-center gap-3 md:gap-6 ml-auto">
                     <button className="md:hidden bg-grey w-12 h-12 rounded-full flex items-center justify-center"
                     onClick={()=>setSearchBoxVisibility(currentVal => !currentVal)}
                     >
-                        <i className="fi fi-rr-search text-xl"></i>
+                        <Icon name="search" className="text-xl" />
                     </button>
 
-                    <Link to="/editor" className="hidden md:flex gap-2 link">
-                        <i className="fi fi-rr-file-edit"></i>
+                    <Link to="/editor" className="hidden md:flex gap-2 link items-center">
+                        <Icon name="edit_note" />
                         <p>Write</p>
                     </Link>
 
                     <button 
-                        className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10"
+                        className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10 flex items-center justify-center"
                         onClick={changeTheme}
                     >
-                        <i className={"fi fi-rr-" + ( theme == "light" ? "moon-stars": "sun" ) + " text-2xl block mt-1" }></i>
+                        <Icon name={theme == "light" ? "dark_mode" : "light_mode"} className="text-2xl" />
                     </button>
 
 
@@ -103,8 +104,8 @@ const Navbar = () => {
                         access_token ?
                         <>
                             <Link to="/dashboard/notifications">
-                                <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10">
-                                    <i className="fi fi-rr-bell text-2xl block mt-1"></i>
+                                <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10 flex items-center justify-center">
+                                    <Icon name="notifications" className="text-2xl" />
                                     {
                                         new_notificatoin_available ? 
                                         <span className="bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2"></span> : " "

@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
 import { getDay } from "../common/date";
+import Icon from "./Icon";
 
 const BlogPostCard = ({ content, author }) => {
 
    let { publishedAt, tags, title, des, banner, activity: { total_likes }, blog_id: id } = content;
 
    let { fullname, profile_img, username } = author;
-
-   console.log(content);
     
     return(
         <Link to={`/blog/${id}`} className="flex gap-8 items-center border-b border-grey pb-5 mb-4">
@@ -25,7 +24,7 @@ const BlogPostCard = ({ content, author }) => {
                 <div className="flex gap-4 mt-7">
                     <span className="btn-light py-1 px-4">{tags[0]}</span>
                     <span className="ml-3 flex items-center gap-2 text-dark-grey">
-                        <i className="fi fi-rr-heart text-xl"></i>
+                        <Icon name="favorite" className="text-xl" />
                         { total_likes }
                     </span>
                 </div>

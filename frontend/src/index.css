@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Gelasio&family=Inter:wght@400;500&display=swap');
-@import "@flaticon/flaticon-uicons/css/all/all";
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 @import "./editor-theme.css";
 
 @tailwind base;
@@ -19,8 +19,12 @@
         @apply font-inter font-normal text-black bg-white;
     }
 
-    i {
-        @apply mt-0.5;
+    .material-symbols-outlined {
+        @apply leading-none align-middle;
+    }
+
+    .material-symbols-outlined.filled {
+        font-variation-settings: 'FILL' 1;
     }
 
     section{

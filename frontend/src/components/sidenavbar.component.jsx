@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Navigate, NavLink, Outlet } from "react-router-dom";
 import { UserContext } from "../App";
-import { px } from "framer-motion";
+import Icon from "./Icon";
 
 const SideNav = () => {
 
@@ -45,7 +45,7 @@ const SideNav = () => {
 
                     <div className="md:hidden bg-white py-1 border-b border-grey flex flex-nowrap overflow-x-auto">
                         <button ref={sideBarIconTab} className="p-5 capitalize" onClick={changePageState}>
-                            <i className="fi fi-rr-bars-staggered pointer-events-none"></i>
+                            <Icon name="menu" className="pointer-events-none" />
                         </button>
 
                         <button ref={pageStateTab} className="p-5 capitalize" onClick={changePageState}>
@@ -61,13 +61,13 @@ const SideNav = () => {
                         <hr className="border-grey -ml-6 mb-8 mr-6" />
 
                         <NavLink to="/dashboard/blogs" onClick={(e) => setpageState(e.target.innerText)} className="sidebar-link">
-                            <i className="fi fi-rr-document"></i>
+                            <Icon name="article" />
                             Blogs
                         </NavLink>
 
                         <NavLink to="/dashboard/notifications" onClick={(e) => setpageState(e.target.innerText)} className="sidebar-link">
                             <div className="relative">
-                                <i className="fi fi-rr-bell"></i>
+                                <Icon name="notifications" />
                                 {
                                     new_notificatoin_available ? 
                                     <span className="bg-red w-2 h-2 rounded-full absolute z-10 top-0 right-0"></span> : " "
@@ -77,7 +77,7 @@ const SideNav = () => {
                         </NavLink>
 
                         <NavLink to="/editor" onClick={(e) => setpageState(e.target.innerText)} className="sidebar-link">
-                            <i className="fi fi-rr-file-edit"></i>
+                            <Icon name="edit_note" />
                             Write
                         </NavLink>
 
@@ -85,12 +85,12 @@ const SideNav = () => {
                         <hr className="border-grey -ml-6 mb-8 mr-6" />
 
                         <NavLink to="/settings/edit-profile" onClick={(e) => setpageState(e.target.innerText)} className="sidebar-link">
-                            <i className="fi fi-rr-user"></i>
+                            <Icon name="person" />
                             Edit Profile
                         </NavLink>
 
                         <NavLink to="/settings/change-password" onClick={(e) => setpageState(e.target.innerText)} className="sidebar-link">
-                            <i className="fi fi-rr-lock"></i>
+                            <Icon name="lock" />
                             Change Password
                         </NavLink>
 

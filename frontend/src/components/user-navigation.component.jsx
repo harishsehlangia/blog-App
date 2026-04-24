@@ -3,6 +3,7 @@ import AnimationWrapper from "../common/page-animation";
 import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 import { removeFromSession } from "../common/session";
+import Icon from "./Icon";
 
 const UserNavigationPanel = () => {
 
@@ -20,9 +21,9 @@ const UserNavigationPanel = () => {
         >
             <div className="bg-white absolute right-0 border border-grey w-60 duration-200">
                 
-                <Link to="/editor" className="flex gap-2 link md:hidden pl-8 py-4">
-                    <i className="fi fi-rr-file-edit"></i>
-                    <p>Write`</p>
+                <Link to="/editor" className="flex gap-2 link md:hidden pl-8 py-4 items-center">
+                    <Icon name="edit_note" />
+                    <p>Write</p>
                 </Link>
 
                 <Link to={`/user/${username}`} className="link pl-8 py-4">
