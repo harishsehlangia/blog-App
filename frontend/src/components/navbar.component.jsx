@@ -4,7 +4,7 @@ import darkLogo from "../imgs/logo-dark.png";
 import lightLogo from "../imgs/logo-light.png";
 import { ThemeContext, UserContext } from "../App";
 import UserNavigationPanel from "./user-navigation.component";
-import axios from "axios";
+import api from "../common/api";
 import { storeInSession } from "../common/session";
 
 const Navbar = () => {
@@ -18,11 +18,7 @@ const Navbar = () => {
     useEffect(() => {
 
         if(access_token){
-            axios.get(import.meta.env.VITE_SERVER_DOMAIN + "/new-notification", {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
+            api.get("/new-notification")
             .then(({ data }) => {
                 setUserAuth({ ...userAuth, ...data })
             })

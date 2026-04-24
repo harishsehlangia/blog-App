@@ -10,7 +10,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { EditorContext } from "../pages/editor.pages";
 import EditorJS from "@editorjs/editorjs";
 import { tools } from "./tools.component";
-import axios from "axios";
+import api from "../common/api";
 import { ThemeContext, UserContext } from "../App";
 
 const BlogEditor = () => {
@@ -127,8 +127,7 @@ const BlogEditor = () => {
                     title, banner, des, content, tags, draft: true
                 }
                 
-                axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", { ...blogObj, id: blog_id },
-                { headers: { 'Authorization': `Bearer ${access_token}` }})
+                api.post("/create-blog", { ...blogObj, id: blog_id })
                 .then(() => {
         
                     e.target.classList.remove('disable');

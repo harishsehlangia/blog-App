@@ -3,7 +3,7 @@ import { BlogContext } from "../pages/blog.page";
 import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 import { Toaster, toast } from "react-hot-toast";
-import axios from "axios";
+import api from "../common/api";
 
 
 const BlogInteraction = () => {
@@ -24,11 +24,7 @@ const BlogInteraction = () => {
 
         if(access_token){
             // make request to server to get liked information
-            axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/isliked-by-user", { _id }, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
+            api.post("/isliked-by-user", { _id })
             .then(({ data: {result} }) => {
                 setLikedByUser(Boolean(result));
             })
@@ -48,11 +44,7 @@ const BlogInteraction = () => {
 
             setBlog({ ...blog, activity: { ...activity, total_likes } })
 
-            axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/like-blog", { _id, isLikedByUser }, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
+            api.post("/like-blog", { _id, isLikedByUser })
             .then(({ data }) => {
                 console.log(data);
             })

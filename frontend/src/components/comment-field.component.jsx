@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { UserContext } from "../App";
 import toast, { Toaster } from "react-hot-toast";
-import axios from "axios";
+import api from "../common/api";
 import { BlogContext } from "../pages/blog.page";
 
 const CommentField = ({ action, index = undefined, replyingTo = undefined, setReplying }) => {
@@ -22,12 +22,8 @@ const CommentField = ({ action, index = undefined, replyingTo = undefined, setRe
             return toast.error("Write something to leave a comment")
         }
 
-        axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/add-comment", {
+        api.post("/add-comment", {
             _id, blog_author, comment, replying_to: replyingTo
-        }, {
-            headers: {
-            'Authorization': `Bearer ${access_token}`
-            }
         })
         .then(({ data }) => {
             

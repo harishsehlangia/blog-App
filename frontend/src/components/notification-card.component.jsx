@@ -3,7 +3,7 @@ import { getDay } from "../common/date";
 import { useContext, useState } from "react";
 import NotificationCommentField from "./notification-comment-field.component";
 import { UserContext } from "../App";
-import axios from "axios";
+import api from "../common/api";
 
 const NotificationCard = ({ data, index, notificationState }) => {
 
@@ -28,11 +28,7 @@ const NotificationCard = ({ data, index, notificationState }) => {
 
         target.setAttribute("disabled", true);
 
-        axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/delete-comment", { _id: comment_id }, {
-            headers: {
-                'Authorization': `Bearer ${access_token}`
-            }
-        })
+        api.post("/delete-comment", { _id: comment_id })
         .then(() => {
             if(type == 'comment'){
                 results.splice(index, 1);

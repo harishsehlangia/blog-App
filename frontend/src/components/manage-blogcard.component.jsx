@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { getDay } from "../common/date";
 import { useContext, useState } from "react";
 import { UserContext } from "../App";
-import axios from "axios";
+import api from "../common/api";
 
 const BlogStats = ({ stats }) => {
     return (
@@ -114,11 +114,7 @@ const deleteBlog = (blog, access_token, target) => {
 
     target.setAttribute("disabled", true);
 
-    axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/delete-blog", { blog_id }, {
-        headers: {
-            'Authorization': `Bearer ${access_token}`
-        }
-    })
+    api.post("/delete-blog", { blog_id })
     .then(({ data }) => {
 
         target.removeAttribute("disabled");
