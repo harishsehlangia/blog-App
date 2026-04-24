@@ -1,6 +1,6 @@
 import {setServers} from "node:dns/promises";
 setServers(['1.1.1.1', '8.8.8.8']);
-import express, { query, response } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import "dotenv/config"
 import bcrypt from 'bcrypt';
@@ -11,13 +11,14 @@ import admin from 'firebase-admin';
 import serviceAccountKey from './blog-app-82817-firebase-adminsdk-fbsvc-7463cad566.json' with { type: "json" };
 import { getAuth } from 'firebase-admin/auth';
 import aws from 'aws-sdk';
+import rateLimit from 'express-rate-limit';
 
 // Schema
 import User from './Schema/User.js';
 import Blog from './Schema/Blog.js';
 import Notification from './Schema/Notification.js';
 import Comment from './Schema/Comment.js';
-import { json } from "node:stream/consumers";
+
 
 const server = express();
 let PORT = process.env.PORT || 3000;
@@ -30,7 +31,26 @@ let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for e
 let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
 
 server.use(express.json());
-server.use(cors());
+server.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
+
+// Rate limiter for auth routes (15 attempts per 15 minutes)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 15,
+    message: { error: "Too many requests from this IP, please try again after 15 minutes" },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Escape special regex characters to prevent ReDoS
+const escapeRegex = (str) => {
+    if (!str) return '';
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
 
 mongoose.connect(process.env.DB_LOCATION, {
     autoIndex: true
@@ -77,7 +97,7 @@ const verifyJWT = (req, res, next) => {
 
 const formatDatatoSend = (user) => {
 
-    const access_token = jwt.sign({ id: user._id }, process.env.SECRET_ACCESS_KEY)
+    const access_token = jwt.sign({ id: user._id }, process.env.SECRET_ACCESS_KEY, { expiresIn: '7d' })
 
     return{
         access_token,
@@ -98,7 +118,7 @@ const generateUsername = async (email) => {
 }
 
 // upload image URL route
-server.get("/get-upload-url", (req, res) => {
+server.get("/get-upload-url", verifyJWT, (req, res) => {
     generateUploadURL()
     .then(url => res.status(200).json({ uploadURL: url }))
     .catch(err => {
@@ -108,7 +128,7 @@ server.get("/get-upload-url", (req, res) => {
 })
 
 // Signup---
-server.post("/signup", (req, res) => {
+server.post("/signup", authLimiter, (req, res) => {
 
     let { fullname, email, password } = req.body;
 
@@ -153,7 +173,7 @@ server.post("/signup", (req, res) => {
 })
 
 // Signin---
-server.post("/signin", (req, res) => {
+server.post("/signin", authLimiter, (req, res) => {
 
     let { email, password } = req.body;
 
@@ -192,7 +212,7 @@ server.post("/signin", (req, res) => {
 })
 
 // Google Auth ---
-server.post("/google-auth", async (req, res) => {
+server.post("/google-auth", authLimiter, async (req, res) => {
     let { access_token } = req.body;
 
     getAuth()
@@ -241,7 +261,7 @@ server.post("/google-auth", async (req, res) => {
 })
 
 // change Password
-server.post("/change-password", verifyJWT, (req, res) => {
+server.post("/change-password", authLimiter, verifyJWT, (req, res) => {
 
     let { currentPassword, newPassword } = req.body;
 
@@ -348,7 +368,7 @@ server.post("/search-blogs", (req, res) => {
     if(tag){
         findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } };
     }else if(query){
-        findQuery = { draft: false, title: new RegExp(query, 'i') }
+        findQuery = { draft: false, title: new RegExp(escapeRegex(query), 'i') }
     }else if(author){
         findQuery = { author, draft: false }
     }
@@ -380,7 +400,7 @@ server.post("/search-blogs-count", (req, res) => {
     if(tag){
         findQuery = { tags: tag, draft: false };
     }else if(query){
-        findQuery = { draft: false, title: new RegExp(query, 'i') }
+        findQuery = { draft: false, title: new RegExp(escapeRegex(query), 'i') }
     }else if(author){
         findQuery = { author, draft: false }
     }
@@ -401,7 +421,7 @@ server.post("/search-users", (req, res) => {
 
     let { query } = req.body;
 
-    User.find({ "personal_info.username": new RegExp(query, 'i') })
+    User.find({ "personal_info.username": new RegExp(escapeRegex(query), 'i') })
     .limit(50)
     .select("personal_info.fullname personal_info.username personal_info.profile_img -_id")
     .then(users => {
@@ -506,7 +526,7 @@ server.post('/create-blog', verifyJWT, (req, res) => {
 
     if(!draft){
         
-        if(!des.length && des.length > 200){
+        if(!des.length || des.length > 200){
             return res.status(403).json({ error: "You must provide blog description under 200 characters" });
         }
     
@@ -942,7 +962,7 @@ server.post("/user-written-blogs", verifyJWT, (req, res) => {
         skipDocs -= deletedDocCount;
     }
 
-    Blog.find({ author: user_id, draft, title: new RegExp(query, 'i') })
+    Blog.find({ author: user_id, draft, title: new RegExp(escapeRegex(query), 'i') })
     .skip(skipDocs)
     .limit(maxLimit)
     .sort({publishedAt: -1})
@@ -962,7 +982,7 @@ server.post("/user-written-blogs-count", verifyJWT, (req, res) => {
     let user_id = req.user;
     let { draft, query } = req.body;
 
-    Blog.countDocuments({ author: user_id, draft, title: new RegExp(query, 'i') })
+    Blog.countDocuments({ author: user_id, draft, title: new RegExp(escapeRegex(query), 'i') })
     .then(count => {
         return res.status(200).json({ totalDocs: count });
     })
@@ -979,8 +999,12 @@ server.post("/delete-blog", verifyJWT, (req, res) => {
     let user_id = req.user;
     let { blog_id } = req.body;
 
-    Blog.findOneAndDelete({ blog_id })
+    Blog.findOneAndDelete({ blog_id, author: user_id })
     .then(blog => {
+
+        if(!blog) {
+            return res.status(403).json({ error: "You do not have permission to delete this blog" });
+        }
 
         Notification.deleteMany({ blog: blog._id }).then(data => console.log("notification deleted"));
 
