@@ -1,4 +1,5 @@
 import api from "../common/api";
+import usePageTitle from "../common/usePageTitle";
 import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnimationWrapper from "../common/page-animation";
@@ -42,7 +43,9 @@ const ProfilePage = () => {
         social_links, joinedAt
         } = profile;
 
-        let { userAuth: { username } } = useContext(UserContext);
+    usePageTitle(profile_username ? `@${profile_username}` : 'Profile');
+
+    let { userAuth: { username } } = useContext(UserContext);
 
     const fetchUserProfile = () => {
         api.post("/get-profile", {username: profileId})

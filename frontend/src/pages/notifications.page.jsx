@@ -1,4 +1,5 @@
 import api from "../common/api";
+import usePageTitle from "../common/usePageTitle";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../App";
 import { filterPaginationData } from "../common/filter-pagination-data";
@@ -9,6 +10,8 @@ import NotificationCard from "../components/notification-card.component";
 import LoadMoreDataBtn from "../components/load-more.component";
 
 const Notifications = () => {
+
+    usePageTitle('Notifications');
 
     let { userAuth, userAuth: { access_token, new_notification_avilable }, setUserAuth } = useContext(UserContext);
 

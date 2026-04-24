@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import usePageTitle from "../common/usePageTitle";
 import AnimationWrapper from "../common/page-animation";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
@@ -13,6 +14,8 @@ import { authWithGoogle } from "../common/firebase";
 const UserAuthForm = ( {type} ) => {
 
     const { userAuth: { access_token }, setUserAuth } = useContext(UserContext)
+
+    usePageTitle(type === 'sign-in' ? 'Sign In' : 'Sign Up');
 
     console.log(access_token);
     

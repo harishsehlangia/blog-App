@@ -1,4 +1,5 @@
 import { useContext, useRef } from "react";
+import usePageTitle from "../common/usePageTitle";
 import AnimationWrapper from "../common/page-animation";
 import InputBox from "../components/input.component";
 import toast, { Toaster } from "react-hot-toast";
@@ -6,6 +7,8 @@ import api from "../common/api";
 import { UserContext } from "../App";
 
 const ChangePassword = () => {
+
+    usePageTitle('Change Password');
 
     let { userAuth: { access_token } } = useContext(UserContext);
 

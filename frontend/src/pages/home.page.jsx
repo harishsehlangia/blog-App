@@ -1,4 +1,5 @@
 import api from "../common/api";
+import usePageTitle from "../common/usePageTitle";
 import AnimationWrapper from "../common/page-animation";
 import InPageNavigation from "../components/inpage-navigation.component";
 import { useEffect, useState } from "react";
@@ -14,6 +15,8 @@ const HomePage = () => {
   let [blogs, setBlogs] = useState(null);
   let [trendingBlogs, setTrendingBlogs] = useState(null);
   let [pageState, setPageState] = useState("home");
+
+  usePageTitle(pageState === "home" ? "Home" : `#${pageState}`);
 
   let categories = [
     "mindset",
@@ -122,7 +125,7 @@ const HomePage = () => {
                     blogs.results.map((blog, i) => {
                     return (
                         <AnimationWrapper
-                        key={i}
+                        key={blog.blog_id}
                         transition={{ duration: 1, delay: i * 0.1 }}
                         >
                         <BlogPostCard
@@ -146,7 +149,7 @@ const HomePage = () => {
                     trendingBlogs.map((blog, i) => {
                         return (
                         <AnimationWrapper
-                            key={i}
+                            key={blog.blog_id}
                             transition={{ duration: 1, delay: i * 0.1 }}
                         >
                             <MinimalBlogPost blog={blog} index={i} />

@@ -1,4 +1,5 @@
 import api from "../common/api";
+import usePageTitle from "../common/usePageTitle";
 import { createContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnimationWrapper from "../common/page-animation";
@@ -33,6 +34,8 @@ const BlogPage = () => {
     const [ totalParentCommentsLoaded, setTotalParentCommentsLoaded ] = useState(0);
 
     let { title, content, banner, author: { personal_info: { fullname, username: author_username, profile_img } }, publishedAt } = blog;
+
+    usePageTitle(title || 'Blog');
 
     const fetchBlog = () => {
         api.post("/get-blog", { blog_id })

@@ -6,6 +6,7 @@ import cors from 'cors';
 import "dotenv/config";
 
 // Config
+import './config/env.js';
 import connectDB from './config/db.js';
 import './config/firebase.js';
 

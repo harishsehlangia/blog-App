@@ -53,10 +53,13 @@ export const getNotifications = (req, res) => {
     .select("createdAt type seen reply")
     .then(notifications => {
 
-        Notification.updateMany(findQuery, { seen: true })
-        .skip(skipDocs)
-        .limit(maxLimit)
-        .then(() => console.log("notification seen"));
+        // Mark fetched notifications as seen using their actual _ids
+        // (updateMany doesn't support .skip()/.limit())
+        let notificationIds = notifications.map(n => n._id);
+        if (notificationIds.length) {
+            Notification.updateMany({ _id: { $in: notificationIds } }, { seen: true })
+            .then(() => console.log("notification seen"));
+        }
 
         return res.status(200).json({ notifications })
     })

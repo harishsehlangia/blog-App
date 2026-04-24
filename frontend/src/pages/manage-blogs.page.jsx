@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import usePageTitle from "../common/usePageTitle";
 import { UserContext } from "../App";
 import { filterPaginationData } from "../common/filter-pagination-data";
 import api from "../common/api";
@@ -12,6 +13,8 @@ import LoadMoreDataBtn from "../components/load-more.component";
 import { useSearchParams } from "react-router-dom";
 
 const ManageBlogs = () => {
+
+    usePageTitle('Manage Blogs');
 
     const [ blogs, setBlogs ] = useState(null);
     const [ drafts, setDrafts ] = useState(null);

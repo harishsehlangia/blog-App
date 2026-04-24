@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import usePageTitle from "../common/usePageTitle";
 import { UserContext } from "../App";
 import api from "../common/api";
 import { profileDataStructure } from "./profile.page";
@@ -10,6 +11,8 @@ import { uploadImage } from "../common/aws";
 import { storeInSession } from "../common/session";
 
 const EditProfile = () => {
+
+    usePageTitle('Edit Profile');
 
     let { userAuth, userAuth: { access_token }, setUserAuth } = useContext(UserContext);
 

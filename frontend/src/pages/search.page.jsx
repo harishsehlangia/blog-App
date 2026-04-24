@@ -1,13 +1,14 @@
 import { useParams } from "react-router-dom";
 import InPageNavigation from "../components/inpage-navigation.component";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "../components/loader.component";
 import AnimationWrapper from "../common/page-animation";
 import BlogPostCard from "../components/blog-post.component";
 import NoDataMessage from "../components/nodata.component";
 import LoadMoreDataBtn from "../components/load-more.component";
 import { filterPaginationData } from "../common/filter-pagination-data";
-import { useEffect } from "react";
+
+import usePageTitle from "../common/usePageTitle";
 import api from "../common/api";
 import UserCard from "../components/usercard.component";
 
@@ -15,6 +16,8 @@ const SearchPage = () => {
   let { query } = useParams();
   let [ blogs, setBlogs ] = useState(null);
   let [ users, setUsers ] = useState(null);
+
+  usePageTitle(`Search: ${query}`);
 
   const searchBlogs = ({ page = 1, create_new_arr = false }) => {
 
@@ -65,7 +68,7 @@ const SearchPage = () => {
                 users == null ? <Loader /> :
                     users.length ?
                         users.map((user, i) => {
-                            return <AnimationWrapper key={i} transition={{ duration: 1, delay: i*0.08 }}>
+                            return <AnimationWrapper key={user.personal_info.username} transition={{ duration: 1, delay: i*0.08 }}>
                                 <UserCard user={user}/>
                             </AnimationWrapper>
                         })
@@ -89,7 +92,7 @@ const SearchPage = () => {
               blogs.results.map((blog, i) => {
                 return (
                   <AnimationWrapper
-                    key={i}
+                    key={blog.blog_id}
                     transition={{ duration: 1, delay: i * 0.1 }}
                   >
                     <BlogPostCard
