@@ -10,7 +10,7 @@ export const uploadImage = async (img) => {
             method: 'PUT',
             url: uploadURL,
             baseURL: '', // Override baseURL for direct S3 upload
-            headers: { 'content-Type': 'multipart/form-data' },
+            headers: { 'Content-Type': 'image/jpeg' },
             data: img
         })
         .then(() => {
