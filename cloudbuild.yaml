@@ -24,7 +24,7 @@ steps:
       [
         'run',
         'deploy',
-        'notelys-backend',
+        'notelys-api',
         '--image',
         'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/backend:$COMMIT_SHA',
         '--region',
