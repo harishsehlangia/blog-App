@@ -5,5 +5,4 @@ server/.env
 frontend/.env
 blog-app-82817-firebase-adminsdk-fbsvc-7463cad566.json
 server/requests.rest
-frontend/src/imgs
 frontend/dist
