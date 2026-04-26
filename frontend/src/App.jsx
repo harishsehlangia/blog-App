@@ -23,31 +23,32 @@ const ForgotPassword = lazy(() => import("./pages/forgot-password.page"));
 const ResetPassword = lazy(() => import("./pages/reset-password.page"));
 
 export const UserContext = createContext({});
-
 export const ThemeContext = createContext({});
 
 const App = () => {
 
     const [userAuth, setUserAuth] = useState({});
-    const [ theme, setTheme ] = useState("light");
+    const [theme, setTheme] = useState("light");
 
     useEffect(() => {
 
         let userInSession = lookInSession("user");
-
-        let themeInSession = lookInSession("theme");
-
         userInSession ? setUserAuth(JSON.parse(userInSession)) : setUserAuth({ access_token: null });
 
-        if(themeInSession){
-            setTheme(() => {
-                document.body.setAttribute('data-theme', themeInSession);
+        // Restore saved theme (prevent flash on load)
+        let savedTheme = lookInSession("theme") || "light";
 
-                return themeInSession;
-            })
-        }else{
-            document.body.setAttribute('data-theme', theme);    
-        }
+        // Block transitions on first paint to prevent flash
+        document.documentElement.classList.add("no-transition");
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        setTheme(savedTheme);
+
+        // Re-enable transitions after first paint
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                document.documentElement.classList.remove("no-transition");
+            });
+        });
 
     }, [])
 

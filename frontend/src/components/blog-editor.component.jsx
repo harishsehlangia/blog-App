@@ -77,7 +77,7 @@ const BlogEditor = () => {
     const handleImgError = (e) => {
         let img = e.target;
 
-        img.src = theme == "light" ? lightBanner : darkBanner;
+        img.src = theme === "light" ? lightBanner : darkBanner;
     }
 
     const handlePublishEvent = () => {
@@ -155,7 +155,7 @@ const BlogEditor = () => {
         <>
             <nav className="navbar">
                 <Link to="/" className="flex-none w-16" >
-                    <img src={ theme == "light" ? darkLogo : lightLogo } />
+                    <img src={ theme === "light" ? darkLogo : lightLogo } />
                 </Link>
                 <p className="max-md:hidden text-black line-clamp-1 w-full">
                     { title.length ? title : "New Blog" }

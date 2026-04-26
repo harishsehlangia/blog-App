@@ -1,5 +1,3 @@
-import { createThemes } from 'tw-colors';
-
 /** @type {import('tailwindcss').Config} */
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -20,31 +18,18 @@ export default {
               inter: ["'Inter'", "sans-serif"],
               gelasio: ["'Gelasio'", "serif"]
             },
+            colors: {
+                white:       'rgb(var(--c-white) / <alpha-value>)',
+                black:       'rgb(var(--c-black) / <alpha-value>)',
+                grey:        'rgb(var(--c-grey) / <alpha-value>)',
+                'dark-grey': 'rgb(var(--c-dark-grey) / <alpha-value>)',
+                red:         'rgb(var(--c-red) / <alpha-value>)',
+                twitter:     'rgb(var(--c-twitter) / <alpha-value>)',
+                brand:       'rgb(var(--c-brand) / <alpha-value>)',
+                transparent: 'transparent',
+            },
         },
 
     },
-    plugins: [
-        createThemes({
-            light: {
-                'white': '#FFFFFF',
-                'black': '#242424',
-                'grey': '#F3F3F3',
-                'dark-grey': '#6B6B6B',
-                'red': '#FF4E4E',
-                'transparent': 'transparent',
-                'twitter': '#1DA1F2',
-                'brand': '#FF6100'
-            },
-            dark : {
-                'white': '#242424',
-                'black': '#F3F3F3',
-                'grey': '#2A2A2A',
-                'dark-grey': '#E7E7E7',
-                'red': '#991F1F',
-                'transparent': 'transparent',
-                'twitter': '#0E71A8',
-                'brand': '#D65100'
-            }
-        })
-    ],
+    plugins: [],
 };

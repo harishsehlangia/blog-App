@@ -6,9 +6,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme color tokens (RGB channels only) ───────── */
+:root {
+    --c-white:     255 255 255;
+    --c-black:      36  36  36;
+    --c-grey:      243 243 243;
+    --c-dark-grey: 107 107 107;
+    --c-red:       255  78  78;
+    --c-twitter:    29 161 242;
+    --c-brand:     255  97   0;
+    color-scheme: light;
+}
+
+[data-theme="dark"] {
+    --c-white:      36  36  36;
+    --c-black:     243 243 243;
+    --c-grey:       42  42  42;
+    --c-dark-grey: 231 231 231;
+    --c-red:       153  31  31;
+    --c-twitter:    14 113 168;
+    --c-brand:     214  81   0;
+    color-scheme: dark;
+}
+
+/* ── Smooth theme transition (only color properties) ── */
+*,
+*::before,
+*::after {
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+/* Disable theme transition on page load */
+.no-transition *,
+.no-transition *::before,
+.no-transition *::after {
+    transition: none !important;
+}
+
 @layer components {
     * {
-        @apply m-0 p-0 box-border text-base duration-100;
+        @apply m-0 p-0 box-border text-base;
         outline: none;
     }
 
@@ -81,7 +118,7 @@
     }
 
     .hide{
-        @apply opacity-0 pointer-events-none duration-100;
+        @apply opacity-0 pointer-events-none;
     }
 
     .show{
