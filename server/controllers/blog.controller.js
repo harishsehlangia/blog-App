@@ -4,6 +4,7 @@ import Notification from '../Schema/Notification.js';
 import Comment from '../Schema/Comment.js';
 import { nanoid } from 'nanoid';
 import { escapeRegex } from '../utils/helpers.js';
+import { deleteMultipleFromS3 } from '../config/s3.js';
 
 // Latest Blogs
 export const latestBlogs = (req, res) => {
@@ -332,6 +333,36 @@ export const deleteBlog = (req, res) => {
 
         if(!blog) {
             return res.status(403).json({ error: "You do not have permission to delete this blog" });
+        }
+
+        // Collect all S3 image URLs from the blog
+        const imageUrls = [];
+
+        // 1. Banner image
+        if (blog.banner && blog.banner.includes('amazonaws.com')) {
+            imageUrls.push(blog.banner);
+        }
+
+        // 2. Inline images from EditorJS content blocks
+        if (blog.content) {
+            const blocks = Array.isArray(blog.content)
+                ? blog.content[0]?.blocks || []
+                : blog.content?.blocks || [];
+
+            blocks.forEach(block => {
+                if (block.type === 'image' && block.data?.file?.url) {
+                    const url = block.data.file.url;
+                    if (url.includes('amazonaws.com')) {
+                        imageUrls.push(url);
+                    }
+                }
+            });
+        }
+
+        // 3. Fire-and-forget S3 cleanup (non-blocking)
+        if (imageUrls.length > 0) {
+            deleteMultipleFromS3(imageUrls)
+                .catch(err => console.error('S3 cleanup failed:', err.message));
         }
 
         Notification.deleteMany({ blog: blog._id }).then(data => console.log("notification deleted"));
