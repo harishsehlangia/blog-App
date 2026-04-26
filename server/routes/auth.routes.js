@@ -28,11 +28,8 @@ router.post("/reset-password",  authLimiter, resetPassword);
 router.post("/refresh-token",   refreshToken);
 
 // ── Google OAuth 2.0 (server-side redirect flow) ──
-router.get("/api/auth/google",          googleAuthRedirect);
-router.get("/api/auth/google/callback", 
-    passport.authenticate('google', { session: false, failureRedirect: '/signin' }),
-    googleAuthCallback
-);
+router.get("/api/auth/google", googleAuthRedirect);
+router.get("/api/auth/google/callback", googleAuthCallback);
 
 // ── Protected routes (JWT required) ──────────────
 router.post("/change-password", verifyJWT, changePassword);

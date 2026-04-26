@@ -285,43 +285,55 @@ export const googleAuthRedirect = passport.authenticate('google', {
 });
 
 /**
- * Step 2: Google callback — Passport validates the auth code,
- * runs the GoogleStrategy, and attaches the user to req.user.
- * Then we generate tokens and redirect to the frontend callback page.
+ * Step 2: Google callback — uses Passport's custom callback pattern
+ * so we can handle errors/failures ourselves and always redirect
+ * to the frontend (never to a backend route).
  * GET /api/auth/google/callback
  */
-export const googleAuthCallback = async (req, res) => {
-    try {
-        const user = req.user;
+export const googleAuthCallback = (req, res, next) => {
+    passport.authenticate('google', { session: false }, async (err, user, info) => {
+        const frontendUrl = process.env.FRONTEND_URL;
 
-        if (!user) {
+        try {
+            // Passport error (strategy threw)
+            if (err) {
+                console.error('[Google Auth Error]', err.message);
+                return res.redirect(
+                    `${frontendUrl}/auth/callback?error=${encodeURIComponent(ERRORS.GOOGLE_AUTH_FAILED)}`
+                );
+            }
+
+            // Authentication failed (e.g. email registered with password)
+            if (!user) {
+                const message = info?.message || ERRORS.GOOGLE_AUTH_FAILED;
+                return res.redirect(
+                    `${frontendUrl}/auth/callback?error=${encodeURIComponent(message)}`
+                );
+            }
+
+            // Success — generate tokens and store hashed refresh token
+            const tokens = generateTokenPair(user._id);
+            const hashedRefreshToken = await bcrypt.hash(tokens.refresh_token, AUTH.SALT_ROUNDS);
+            await User.updateOne({ _id: user._id }, { refreshToken: hashedRefreshToken });
+
+            // Redirect to frontend with tokens in URL params
+            const params = new URLSearchParams({
+                access_token: tokens.access_token,
+                refresh_token: tokens.refresh_token,
+                profile_img: user.personal_info.profile_img || '',
+                username: user.personal_info.username,
+                fullname: user.personal_info.fullname,
+            });
+
+            return res.redirect(`${frontendUrl}/auth/callback?${params.toString()}`);
+
+        } catch (error) {
+            console.error('[Google Auth Callback Error]', error.message);
             return res.redirect(
-                `${process.env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(ERRORS.GOOGLE_AUTH_FAILED)}`
+                `${frontendUrl}/auth/callback?error=${encodeURIComponent(ERRORS.GOOGLE_AUTH_FAILED)}`
             );
         }
-
-        // Generate tokens and store hashed refresh token
-        const tokens = generateTokenPair(user._id);
-        const hashedRefreshToken = await bcrypt.hash(tokens.refresh_token, AUTH.SALT_ROUNDS);
-        await User.updateOne({ _id: user._id }, { refreshToken: hashedRefreshToken });
-
-        // Redirect to frontend with tokens in URL params
-        const params = new URLSearchParams({
-            access_token: tokens.access_token,
-            refresh_token: tokens.refresh_token,
-            profile_img: user.personal_info.profile_img || '',
-            username: user.personal_info.username,
-            fullname: user.personal_info.fullname,
-        });
-
-        return res.redirect(`${process.env.FRONTEND_URL}/auth/callback?${params.toString()}`);
-
-    } catch (err) {
-        console.error('[Google Auth Callback Error]', err.message);
-        return res.redirect(
-            `${process.env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(ERRORS.GOOGLE_AUTH_FAILED)}`
-        );
-    }
+    })(req, res, next);
 };
 
 // ─────────────────────────────────────────────
