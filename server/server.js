@@ -23,7 +23,11 @@ const server = express();
 const PORT = process.env.PORT || 8080;
 
 // Global middleware
-server.use(helmet());
+server.use(helmet({
+    contentSecurityPolicy: false, // API-only server, CSP is for HTML documents
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow S3 image loading
+    crossOriginEmbedderPolicy: false, // Allow embedding cross-origin resources (S3 images)
+}));
 server.use(express.json());
 
 const allowedOrigins = [

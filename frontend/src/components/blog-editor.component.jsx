@@ -53,7 +53,7 @@ const BlogEditor = () => {
             })
             .catch(err => {
                 toast.dismiss(loadingToast);
-                toast.error(err);
+                toast.error(err?.response?.data?.error || err.message || "Upload failed");
             })
         }
         
