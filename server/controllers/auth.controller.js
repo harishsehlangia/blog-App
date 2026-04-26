@@ -1,184 +1,497 @@
 import bcrypt from 'bcrypt';
 import User from '../Schema/User.js';
+import LoginAttempt from '../Schema/LoginAttempt.js';
 import { getAuth } from '../config/firebase.js';
 import { emailRegex, passwordRegex } from '../utils/regex.js';
 import { formatDatatoSend, generateUsername } from '../utils/helpers.js';
+import { generateTokenPair, generateAccessToken, verifyRefreshToken } from '../services/token.service.js';
+import { generateOtp, verifyOtp } from '../services/otp.service.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.service.js';
+import { AUTH } from '../constants/auth.constants.js';
+import { ERRORS } from '../constants/error-messages.js';
 
-// Signup
-export const signup = (req, res) => {
+// ─────────────────────────────────────────────
+// Signup — creates unverified user, sends OTP
+// ─────────────────────────────────────────────
+export const signup = async (req, res) => {
+    try {
+        let { fullname, email, password } = req.body;
 
-    let { fullname, email, password } = req.body;
+        // Input validation
+        if (!fullname || fullname.length < 3) {
+            return res.status(422).json({ error: ERRORS.FULLNAME_TOO_SHORT });
+        }
+        if (!email || !email.length) {
+            return res.status(422).json({ error: ERRORS.EMAIL_REQUIRED });
+        }
+        if (!emailRegex.test(email)) {
+            return res.status(422).json({ error: ERRORS.EMAIL_INVALID });
+        }
+        if (!passwordRegex.test(password)) {
+            return res.status(422).json({ error: ERRORS.PASSWORD_WEAK });
+        }
 
-    // Validating the data from frontend
-    if(fullname.length < 3){
-        return res.status(403).json({ "error": "Fullname must be at least 3 letters long" })
-    }
-    if(!email.length){
-        return res.status(403).json({ "error": "Enter Email" });
-        
-    }
-    if(!emailRegex.test(email)){
-        return res.status(403).json({ "error": "Email is invalid" })
-    }
-    if(!passwordRegex.test(password)){
-        return res.status(403).json({ "error": "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters" })
-    }
+        // Check if email already exists
+        const existingUser = await User.findOne({ "personal_info.email": email.toLowerCase() });
+        if (existingUser) {
+            // If user exists but is unverified, allow re-registration
+            if (!existingUser.personal_info.isEmailVerified) {
+                // Update the existing unverified user with new data
+                const hashed_password = await bcrypt.hash(password, AUTH.SALT_ROUNDS);
+                const username = await generateUsername(email);
 
-    bcrypt.hash(password, 10, async (err, hashed_password)=>{
+                existingUser.personal_info.fullname = fullname;
+                existingUser.personal_info.password = hashed_password;
+                existingUser.personal_info.username = username;
+                await existingUser.save();
 
-        let username = await generateUsername(email);
-        let user = new User({
-            personal_info: { fullname, email, password: hashed_password, username }
-        })
+                // Generate and send OTP
+                const otp = await generateOtp(email.toLowerCase());
+                await sendVerificationEmail(email, otp);
 
-        user.save().then((u) => {
-            return res.status(200).json(formatDatatoSend(u))
-        })
-        .catch(err => {
-
-            if(err.code == 11000){
-                return res.status(500).json({ "error": "Email already exists" })
+                return res.status(200).json({
+                    message: "Verification OTP sent to your email",
+                    email: email.toLowerCase(),
+                });
             }
-
-            return res.status(500).json({ "error": err.message })
-        })
-
-        
-
-    })
-
-};
-
-// Signin
-export const signin = (req, res) => {
-
-    let { email, password } = req.body;
-
-    User.findOne({ "personal_info.email": email })
-    .select('+personal_info.password')
-    .then((user) => {
-        if(!user){
-            return res.status(403).json({ "error": "Email not found" })
+            return res.status(409).json({ error: ERRORS.EMAIL_EXISTS });
         }
 
-        if(!user.google_auth) {
+        // Hash password and create user
+        const hashed_password = await bcrypt.hash(password, AUTH.SALT_ROUNDS);
+        const username = await generateUsername(email);
 
-            bcrypt.compare(password, user.personal_info.password, (err, result) => {
-    
-                if(err) {
-                    return res.status(405).json({ "error": "Error occured while login please try again" })
-                }
-    
-                if(!result) {
-                    return res.status(403).json({ "error": "Incorrect password" })
-                }else{
-                    return res.status(200).json(formatDatatoSend(user))
-                }
-    
-            })
-        }else{
-            return res.status(403).json({ "error": "Account was created using google. Try logging in with google." })
+        const user = new User({
+            personal_info: {
+                fullname,
+                email: email.toLowerCase(),
+                password: hashed_password,
+                username,
+                isEmailVerified: false,
+            },
+            provider: 'local',
+        });
+
+        await user.save();
+
+        // Generate and send OTP
+        const otp = await generateOtp(email.toLowerCase());
+        await sendVerificationEmail(email, otp);
+
+        return res.status(200).json({
+            message: "Verification OTP sent to your email",
+            email: email.toLowerCase(),
+        });
+
+    } catch (err) {
+        console.error('[Signup Error]', err.message);
+
+        if (err.code === 11000) {
+            return res.status(409).json({ error: ERRORS.EMAIL_EXISTS });
         }
-        
-    })
-    .catch(err => {
-        console.log(err);
-        return res.status(500).json({ "error": err.message })
-    })
-
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
 };
 
-// Google Auth
+// ─────────────────────────────────────────────
+// Verify Email — validates OTP, returns tokens
+// ─────────────────────────────────────────────
+export const verifyEmail = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(422).json({ error: ERRORS.OTP_REQUIRED });
+        }
+
+        // Verify the OTP
+        await verifyOtp(email.toLowerCase(), otp);
+
+        // Mark email as verified
+        const user = await User.findOneAndUpdate(
+            { "personal_info.email": email.toLowerCase() },
+            { "personal_info.isEmailVerified": true },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ error: ERRORS.USER_NOT_FOUND });
+        }
+
+        // Generate tokens and store hashed refresh token
+        const tokens = generateTokenPair(user._id);
+        const hashedRefreshToken = await bcrypt.hash(tokens.refresh_token, AUTH.SALT_ROUNDS);
+        await User.updateOne({ _id: user._id }, { refreshToken: hashedRefreshToken });
+
+        return res.status(200).json({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            profile_img: user.personal_info.profile_img,
+            username: user.personal_info.username,
+            fullname: user.personal_info.fullname,
+        });
+
+    } catch (err) {
+        console.error('[Verify Email Error]', err.message);
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Resend OTP — with 60-second cooldown
+// ─────────────────────────────────────────────
+export const resendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(422).json({ error: ERRORS.EMAIL_REQUIRED });
+        }
+
+        const user = await User.findOne({ "personal_info.email": email.toLowerCase() });
+
+        if (!user) {
+            return res.status(404).json({ error: ERRORS.USER_NOT_FOUND });
+        }
+
+        if (user.personal_info.isEmailVerified) {
+            return res.status(400).json({ error: ERRORS.EMAIL_ALREADY_VERIFIED });
+        }
+
+        // Generate and send new OTP (cooldown enforced inside generateOtp)
+        const otp = await generateOtp(email.toLowerCase());
+        await sendVerificationEmail(email, otp);
+
+        return res.status(200).json({
+            message: "Verification OTP resent to your email",
+        });
+
+    } catch (err) {
+        console.error('[Resend OTP Error]', err.message);
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Signin — with brute-force protection
+// ─────────────────────────────────────────────
+export const signin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(422).json({ error: ERRORS.INVALID_CREDENTIALS });
+        }
+
+        const identifier = email.toLowerCase().trim();
+
+        // Check brute-force lockout
+        const recentAttempts = await LoginAttempt.countDocuments({ identifier });
+        if (recentAttempts >= AUTH.MAX_LOGIN_ATTEMPTS) {
+            return res.status(429).json({ error: ERRORS.ACCOUNT_LOCKED });
+        }
+
+        // Find user by email OR username
+        const user = await User.findOne({
+            $or: [
+                { "personal_info.email": identifier },
+                { "personal_info.username": identifier },
+            ]
+        }).select('+personal_info.password');
+
+        if (!user) {
+            // Record failed attempt
+            await LoginAttempt.create({
+                identifier,
+                expiresAt: new Date(Date.now() + AUTH.LOGIN_LOCKOUT_MS),
+            });
+            return res.status(401).json({ error: ERRORS.INVALID_CREDENTIALS });
+        }
+
+        // Check if this is a Google-only account
+        if (user.google_auth) {
+            return res.status(403).json({ error: ERRORS.LOCAL_ACCOUNT_EXISTS });
+        }
+
+        // Check if email is verified
+        if (!user.personal_info.isEmailVerified) {
+            return res.status(403).json({
+                error: ERRORS.EMAIL_NOT_VERIFIED,
+                email: user.personal_info.email,
+                needsVerification: true,
+            });
+        }
+
+        // Compare password
+        const isPasswordValid = await bcrypt.compare(password, user.personal_info.password);
+
+        if (!isPasswordValid) {
+            // Record failed attempt
+            await LoginAttempt.create({
+                identifier,
+                expiresAt: new Date(Date.now() + AUTH.LOGIN_LOCKOUT_MS),
+            });
+
+            const attemptsLeft = AUTH.MAX_LOGIN_ATTEMPTS - (recentAttempts + 1);
+            return res.status(401).json({
+                error: attemptsLeft > 0
+                    ? `${ERRORS.INVALID_CREDENTIALS} (${attemptsLeft} attempts remaining)`
+                    : ERRORS.ACCOUNT_LOCKED,
+            });
+        }
+
+        // Success — clear all login attempts for this identifier
+        await LoginAttempt.deleteMany({ identifier });
+
+        // Generate tokens and store hashed refresh token
+        const tokens = generateTokenPair(user._id);
+        const hashedRefreshToken = await bcrypt.hash(tokens.refresh_token, AUTH.SALT_ROUNDS);
+        await User.updateOne({ _id: user._id }, { refreshToken: hashedRefreshToken });
+
+        return res.status(200).json({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            profile_img: user.personal_info.profile_img,
+            username: user.personal_info.username,
+            fullname: user.personal_info.fullname,
+        });
+
+    } catch (err) {
+        console.error('[Signin Error]', err.message);
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Google Auth — Firebase popup flow (kept for now)
+// ─────────────────────────────────────────────
 export const googleAuth = async (req, res) => {
-    let { access_token } = req.body;
+    try {
+        let { access_token } = req.body;
 
-    getAuth()
-    .verifyIdToken(access_token)
-    .then(async (decodedUser) => {
+        const decodedUser = await getAuth().verifyIdToken(access_token);
         let { email, name, picture } = decodedUser;
 
-        picture = picture.replace("s96-c", "s384-c")
+        picture = picture.replace("s96-c", "s384-c");
 
-        let user = await User.findOne({"personal_info.email": email})
-        .select("personal_info.fullname personal_info.username personal_info.profile_img google_auth")
-        .then((u) => {
-            return u || null
-        })
-        .catch(err => {
-            return res.status(500).json({ "error": err.message })
-        })
+        let user = await User.findOne({ "personal_info.email": email })
+            .select("personal_info.fullname personal_info.username personal_info.profile_img google_auth");
 
-        if(user) { // login
-            if(!user.google_auth){
-                return res.status(403).json({ "error": "This email was signed up without google. please log in with password to access the account" })
+        if (user) {
+            // Existing user — check it's a Google account
+            if (!user.google_auth) {
+                return res.status(403).json({ error: ERRORS.GOOGLE_ACCOUNT_EXISTS });
             }
-        }
-        else { // signup
+        } else {
+            // New user — create with Google provider
             let username = await generateUsername(email);
 
             user = new User({
-                personal_info: { fullname: name, email, username }, google_auth: true
-            })
+                personal_info: {
+                    fullname: name,
+                    email,
+                    username,
+                    profile_img: picture,
+                    isEmailVerified: true,
+                },
+                google_auth: true,
+                provider: 'google',
+            });
 
-            await user.save()
-            .then((u) => {
-                user = u;
-            })
-            .catch(err => {
-                return res.status(500).json({ "error": err.message })
-            })
+            await user.save();
         }
 
-        return res.status(200).json(formatDatatoSend(user))
+        // Generate tokens and store hashed refresh token
+        const tokens = generateTokenPair(user._id);
+        const hashedRefreshToken = await bcrypt.hash(tokens.refresh_token, AUTH.SALT_ROUNDS);
+        await User.updateOne({ _id: user._id }, { refreshToken: hashedRefreshToken });
 
-    })
-    .catch(err => {
-        return res.status(500).json({ "error": "Failed to authenticate you with google. Try with some other google account" })
-    })
+        return res.status(200).json({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            profile_img: user.personal_info.profile_img,
+            username: user.personal_info.username,
+            fullname: user.personal_info.fullname,
+        });
+
+    } catch (err) {
+        console.error('[Google Auth Error]', err.message);
+        return res.status(500).json({ error: ERRORS.GOOGLE_AUTH_FAILED });
+    }
 };
 
-// Change Password
-export const changePassword = (req, res) => {
+// ─────────────────────────────────────────────
+// Forgot Password — sends reset OTP
+// ─────────────────────────────────────────────
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
 
-    let { currentPassword, newPassword } = req.body;
-
-    if(!passwordRegex.test(currentPassword) || !passwordRegex.test(newPassword)){
-        return res.status(403).json({ error: "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters" })
-    }
-
-    User.findOne({ _id: req.user })
-    .select('+personal_info.password')
-    .then((user) => {
-
-        if(user.google_auth){
-            return res.status(403).json({ error: "You can't change account's password because you logged in through google" })
+        if (!email) {
+            return res.status(422).json({ error: ERRORS.EMAIL_REQUIRED });
         }
 
-        bcrypt.compare(currentPassword, user.personal_info.password, (err, result) => {
-            if(err){
-                return res.status(500).json({ error: "some error occured while changing the password, please try again later" });
-            }
+        const user = await User.findOne({ "personal_info.email": email.toLowerCase() });
 
-            if(!result){
-                return res.status(403).json({ error: "Incorrect current password" });
-            }
+        // Always return success to prevent email enumeration
+        if (!user || user.google_auth) {
+            return res.status(200).json({ message: ERRORS.PASSWORD_RESET_SENT });
+        }
 
-            bcrypt.hash(newPassword, 10, (err, hashed_password) => {
-                
-                User.findOneAndUpdate({ _id: req.user }, { "personal_info.password": hashed_password })
-                .then((u) => {
-                    return res.status(200).json({ status: 'password changed' })
-                })
-                .catch(err => {
-                    return res.status(500).json({ error: "Some error occured while saving new password, please try again later" })
-                })
+        const otp = await generateOtp(email.toLowerCase());
+        await sendPasswordResetEmail(email, otp);
 
-            })
-        })
-    })
-    .catch(err => {
-        console.log(err);
-        return res.status(500).json({ error: "User not found" });
-    })
+        return res.status(200).json({ message: ERRORS.PASSWORD_RESET_SENT });
 
+    } catch (err) {
+        console.error('[Forgot Password Error]', err.message);
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Reset Password — verifies OTP + updates password
+// ─────────────────────────────────────────────
+export const resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+
+        if (!email || !otp || !newPassword) {
+            return res.status(422).json({ error: "Email, OTP, and new password are required" });
+        }
+
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(422).json({ error: ERRORS.PASSWORD_WEAK });
+        }
+
+        // Verify the OTP
+        await verifyOtp(email.toLowerCase(), otp);
+
+        // Hash and update the password
+        const hashedPassword = await bcrypt.hash(newPassword, AUTH.SALT_ROUNDS);
+
+        const user = await User.findOneAndUpdate(
+            { "personal_info.email": email.toLowerCase() },
+            { "personal_info.password": hashedPassword }
+        );
+
+        if (!user) {
+            return res.status(404).json({ error: ERRORS.USER_NOT_FOUND });
+        }
+
+        return res.status(200).json({ message: ERRORS.PASSWORD_RESET_SUCCESS });
+
+    } catch (err) {
+        console.error('[Reset Password Error]', err.message);
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Refresh Token — returns new access token
+// ─────────────────────────────────────────────
+export const refreshToken = async (req, res) => {
+    try {
+        const { refreshToken: token } = req.body;
+
+        if (!token) {
+            return res.status(401).json({ error: ERRORS.REFRESH_TOKEN_INVALID });
+        }
+
+        // Verify JWT signature
+        const decoded = verifyRefreshToken(token);
+        if (!decoded) {
+            return res.status(401).json({ error: ERRORS.REFRESH_TOKEN_INVALID });
+        }
+
+        // Find user and verify stored refresh token matches
+        const user = await User.findById(decoded.id).select('+refreshToken');
+        if (!user || !user.refreshToken) {
+            return res.status(401).json({ error: ERRORS.REFRESH_TOKEN_INVALID });
+        }
+
+        const isMatch = await bcrypt.compare(token, user.refreshToken);
+        if (!isMatch) {
+            return res.status(401).json({ error: ERRORS.REFRESH_TOKEN_INVALID });
+        }
+
+        // Issue new access token only
+        const newAccessToken = generateAccessToken(user._id);
+
+        return res.status(200).json({ access_token: newAccessToken });
+
+    } catch (err) {
+        console.error('[Refresh Token Error]', err.message);
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Logout — invalidates refresh token
+// ─────────────────────────────────────────────
+export const logout = async (req, res) => {
+    try {
+        await User.updateOne(
+            { _id: req.user },
+            { $unset: { refreshToken: 1 } }
+        );
+
+        return res.status(200).json({ message: "Logged out successfully" });
+
+    } catch (err) {
+        console.error('[Logout Error]', err.message);
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
+};
+
+// ─────────────────────────────────────────────
+// Change Password — for authenticated users
+// ─────────────────────────────────────────────
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!passwordRegex.test(currentPassword) || !passwordRegex.test(newPassword)) {
+            return res.status(422).json({ error: ERRORS.PASSWORD_WEAK });
+        }
+
+        const user = await User.findOne({ _id: req.user }).select('+personal_info.password');
+
+        if (!user) {
+            return res.status(404).json({ error: ERRORS.USER_NOT_FOUND });
+        }
+
+        if (user.google_auth) {
+            return res.status(403).json({ error: ERRORS.GOOGLE_PASSWORD_CHANGE });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.personal_info.password);
+        if (!isMatch) {
+            return res.status(403).json({ error: ERRORS.CURRENT_PASSWORD_INCORRECT });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, AUTH.SALT_ROUNDS);
+        await User.updateOne({ _id: req.user }, { "personal_info.password": hashedPassword });
+
+        return res.status(200).json({ message: "Password changed successfully" });
+
+    } catch (err) {
+        console.error('[Change Password Error]', err.message);
+        return res.status(500).json({ error: ERRORS.SERVER_ERROR });
+    }
 };
