@@ -26,7 +26,7 @@ router.post("/verify-email",    authLimiter, verifyEmail);
 router.post("/resend-otp",      authLimiter, resendOtp);
 router.post("/forgot-password", authLimiter, forgotPassword);
 router.post("/reset-password",  authLimiter, resetPassword);
-router.post("/refresh-token",   refreshToken);
+router.post("/refresh-token",   authLimiter, refreshToken);
 
 // ── Google OAuth 2.0 (server-side redirect flow) ──
 router.get("/api/auth/google", googleAuthRedirect);

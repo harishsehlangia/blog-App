@@ -8,9 +8,9 @@ export const newNotification = (req, res) => {
     Notification.exists({ notification_for: user_id, seen: false, user: { $ne: user_id } })
     .then(result => {
         if(result){
-            return res.status(200).json({ new_notificatoin_available: true })
+            return res.status(200).json({ new_notification_available: true })
         } else{
-            return res.status(200).json({ new_notificatoin_available: false })
+            return res.status(200).json({ new_notification_available: false })
         }
     })
     .catch(err => {

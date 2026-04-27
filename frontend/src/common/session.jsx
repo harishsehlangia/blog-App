@@ -1,13 +1,13 @@
 const storeInSession = (key, value) => {
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
 }
 
 const lookInSession = (key) => {
-    return localStorage.getItem(key)
+    return sessionStorage.getItem(key)
 }
 
 const removeFromSession = (key) => {
-    return localStorage.removeItem(key)
+    return sessionStorage.removeItem(key)
 }
 
 export { storeInSession, lookInSession, removeFromSession }

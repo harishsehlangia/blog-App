@@ -12,7 +12,7 @@ const Navbar = () => {
 
     const [ searchBoxVisibility, setSearchBoxVisibility ] = useState(false)
     const [ userNavPanel, setUserNavPanel ] = useState(false);
-    const { userAuth, userAuth: { access_token, profile_img, new_notificatoin_available }, setUserAuth } =  useContext(UserContext);
+    const { userAuth, userAuth: { access_token, profile_img, new_notification_available }, setUserAuth } =  useContext(UserContext);
 
     let { theme, setTheme } = useContext(ThemeContext);
 
@@ -104,7 +104,7 @@ const Navbar = () => {
                                 <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10 flex items-center justify-center">
                                     <Icon name="notifications" className="text-2xl" />
                                     {
-                                        new_notificatoin_available ? 
+                                        new_notification_available ? 
                                         <span className="bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2"></span> : " "
                                     }
                                 </button>

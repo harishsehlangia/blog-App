@@ -27,7 +27,7 @@ const UserAuthForm = ( {type} ) => {
         let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
 
         //formData
-        let form = new FormData(formElement);
+        let form = new FormData(document.getElementById("formElement"));
         let formData = {};
 
         for(let [key, value] of form.entries()){

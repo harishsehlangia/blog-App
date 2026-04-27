@@ -10,7 +10,7 @@ const commentSchema = mongoose.Schema({
     blog_author: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: 'blogs',
+        ref: 'users',
     },
     comment: {
         type: String,
@@ -22,7 +22,7 @@ const commentSchema = mongoose.Schema({
     },
     commented_by: {
         type: Schema.Types.ObjectId,
-        require: true,
+        required: true,
         ref: 'users'
     },
     isReply: {

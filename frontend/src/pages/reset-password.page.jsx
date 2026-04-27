@@ -63,7 +63,7 @@ const ResetPassword = () => {
             return toast.error("Please enter the complete 6-digit OTP");
         }
 
-        const form = new FormData(resetForm);
+        const form = new FormData(document.getElementById("resetForm"));
         const newPassword = form.get("newPassword");
         const confirmPassword = form.get("confirmPassword");
 

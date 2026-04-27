@@ -117,12 +117,41 @@ export const searchBlogsCount = (req, res) => {
 
 };
 
+import sanitizeHtml from 'sanitize-html';
+
+const sanitizeOptions = {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'b', 'i', 'u', 'strong', 'em', 'ol', 'ul', 'li', 'code', 'pre', 'br', 'span', 'div', 'mark', 'table', 'tr', 'td', 'th', 'tbody', 'thead']),
+    allowedAttributes: {
+        '*': ['style', 'class'],
+        'a': ['href', 'name', 'target'],
+        'img': ['src', 'alt', 'title', 'width', 'height']
+    }
+};
+
 // Create blog
 export const createBlog = (req, res) => {
 
     let authorId = req.user;
 
     let { title, banner, content, des, tags, draft, id } = req.body;
+
+    // Sanitize basic strings
+    title = title ? sanitizeHtml(title, sanitizeOptions) : '';
+    des = des ? sanitizeHtml(des, sanitizeOptions) : '';
+    tags = tags ? tags.map(tag => sanitizeHtml(tag, sanitizeOptions)) : [];
+
+    // Sanitize EditorJS blocks
+    if (content && content.blocks) {
+        content.blocks = content.blocks.map(block => {
+            if (block.data && block.data.text) {
+                block.data.text = sanitizeHtml(block.data.text, sanitizeOptions);
+            }
+            if (block.data && block.data.items) {
+                block.data.items = block.data.items.map(item => sanitizeHtml(item, sanitizeOptions));
+            }
+            return block;
+        });
+    }
     
     if(!title.length){
         return res.status(403).json({ error: "You must provide a title" });
@@ -189,35 +218,53 @@ export const createBlog = (req, res) => {
 
 };
 
+import jwt from 'jsonwebtoken';
+
 // Get blog
 export const getBlog = (req, res) => {
-
     let { blog_id, draft, mode } = req.body;
-
     let incrementVal = mode != 'edit' ? 1 : 0;
 
-    Blog.findOneAndUpdate({ blog_id }, { $inc : { "activity.total_reads": incrementVal } })
-    .populate("author", "personal_info.fullname personal_info.username personal_info.profile_img")
-    .select("title des content banner activity publishedAt blog_id tags")
-    .then(blog => {
+    Blog.findOne({ blog_id })
+        .populate("author", "personal_info.fullname personal_info.username personal_info.profile_img")
+        .select("title des content banner activity publishedAt blog_id tags draft author")
+        .then(blog => {
+            if (!blog) {
+                return res.status(404).json({ error: "Blog not found" });
+            }
 
-        User.findOneAndUpdate({ "personal_info.username": blog.author.personal_info.username },
-            {$inc : { "account_info.total_reads": incrementVal }
+            // Secure draft access
+            if (blog.draft) {
+                if (!draft) {
+                    return res.status(403).json({ error: "You cannot access draft blogs" });
+                }
+                // Verify ownership using JWT
+                const authHeader = req.headers['authorization'];
+                const token = authHeader && authHeader.split(" ")[1];
+                if (!token) return res.status(401).json({ error: "Access denied to draft" });
+                
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+                    if (decoded.id !== blog.author._id.toString()) {
+                        return res.status(403).json({ error: "You can only access your own drafts" });
+                    }
+                } catch (err) {
+                    return res.status(401).json({ error: "Invalid access token" });
+                }
+            } else if (incrementVal > 0) {
+                // Increment reads only for published blogs
+                Blog.findByIdAndUpdate(blog._id, { $inc: { "activity.total_reads": incrementVal } }).catch(err => console.error(err));
+                User.findOneAndUpdate(
+                    { "personal_info.username": blog.author.personal_info.username },
+                    { $inc: { "account_info.total_reads": incrementVal } }
+                ).catch(err => console.error(err));
+            }
+
+            return res.status(200).json({ blog });
         })
         .catch(err => {
             return res.status(500).json({ error: err.message });
-        })
-
-        if(blog.draft && !draft){
-            return res.status(500).json({ error: 'you can not access draft blogs' })
-        }
-
-        return res.status(200).json({ blog });
-    })
-    .catch(err => {
-        return res.status(500).json({ error: err.message });
-    })
-
+        });
 };
 
 // Like blog
@@ -242,6 +289,8 @@ export const likeBlog = (req, res) => {
 
             like.save().then(notification => {
                 return res.status(200).json({ liked_by_user: true })
+            }).catch(err => {
+                return res.status(500).json({ error: err.message });
             })
         }
         else{
@@ -256,6 +305,9 @@ export const likeBlog = (req, res) => {
 
         }
 
+    })
+    .catch(err => {
+        return res.status(500).json({ error: err.message });
     })
 
 };
@@ -317,7 +369,7 @@ export const userWrittenBlogsCount = (req, res) => {
     })
     .catch(err => {
         console.log(err);
-        return res.status(500).json({ err: err.message });
+        return res.status(500).json({ error: err.message });
     })
 
 };
@@ -365,12 +417,17 @@ export const deleteBlog = (req, res) => {
                 .catch(err => console.error('S3 cleanup failed:', err.message));
         }
 
-        Notification.deleteMany({ blog: blog._id }).then(data => console.log("notification deleted"));
+        Notification.deleteMany({ blog: blog._id })
+            .then(data => console.log("notification deleted"))
+            .catch(err => console.error("notification delete error:", err.message));
 
-        Comment.deleteMany({ blog_id: blog._id }).then(data => console.log("comments deleted"));
+        Comment.deleteMany({ blog_id: blog._id })
+            .then(data => console.log("comments deleted"))
+            .catch(err => console.error("comments delete error:", err.message));
 
-        User.findOneAndUpdate({ _id: user_id }, { $pull: { blog: blog._id }, $inc: { "account_info.total_posts": -1 } })
-        .then(user => console.log("Blog deleted"));
+        User.findOneAndUpdate({ _id: user_id }, { $pull: { blogs: blog._id }, $inc: { "account_info.total_posts": -1 } })
+            .then(user => console.log("Blog deleted"))
+            .catch(err => console.error("user update error:", err.message));
 
         return res.status(200).json({ status: "done" });
 

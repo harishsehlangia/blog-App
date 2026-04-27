@@ -18,7 +18,7 @@ const ForgotPassword = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const form = new FormData(formElement);
+        const form = new FormData(document.getElementById("formElement"));
         const emailVal = form.get("email");
 
         if (!emailVal || !emailVal.length) {

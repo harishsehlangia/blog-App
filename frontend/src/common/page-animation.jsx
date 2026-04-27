@@ -7,7 +7,8 @@ const AnimationWrapper = ({ children, keyValue, initial={opacity: 0}, animate={o
                 key={keyValue}
                 initial={initial}
                 animate={animate}
-                transition={className}
+                transition={transition}
+                className={className}
             >
                 { children }
             </motion.div>

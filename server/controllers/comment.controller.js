@@ -15,9 +15,11 @@ const deleteComments = (_id) => {
 
         Notification.findOneAndDelete({ comment: _id })
         .then(notification => console.log("Comment notification deleted"))
+        .catch(err => console.error("Error deleting comment notification:", err.message));
         
         Notification.findOneAndUpdate({ reply: _id }, { $unset: { reply: 1 } })
         .then(notification => console.log("reply notification deleted"))
+        .catch(err => console.error("Error deleting reply notification:", err.message));
 
         Blog.findOneAndUpdate({ _id: comment.blog_id }, { $pull: { comments: _id }, $inc: { 'activity.total_comments': -1 }, "activity.total_parent_comments": comment.parent ? 0 : -1 })
         .then(blog => {
