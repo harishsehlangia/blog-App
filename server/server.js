@@ -57,6 +57,11 @@ server.use(notificationRoutes);
 server.use(userRoutes);
 server.use(uploadRoutes);
 
+// Catch-all 404 for undefined API routes
+server.use((req, res) => {
+    res.status(404).json({ error: `Route ${req.method} ${req.originalUrl} not found` });
+});
+
 // Global error handler (must be after routes)
 server.use(errorHandler);
 

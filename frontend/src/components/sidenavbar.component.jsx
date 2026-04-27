@@ -5,7 +5,7 @@ import Icon from "./Icon";
 
 const SideNav = () => {
 
-    let { userAuth: {access_token, new_notificatoin_available} } = useContext(UserContext);
+    let { userAuth: {access_token, new_notification_available} } = useContext(UserContext);
 
     let page = location.pathname.split("/")[2];
 
@@ -69,7 +69,7 @@ const SideNav = () => {
                             <div className="relative">
                                 <Icon name="notifications" />
                                 {
-                                    new_notificatoin_available ? 
+                                    new_notification_available ? 
                                     <span className="bg-red w-2 h-2 rounded-full absolute z-10 top-0 right-0"></span> : " "
                                 }
                             </div>

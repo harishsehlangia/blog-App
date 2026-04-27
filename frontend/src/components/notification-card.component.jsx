@@ -46,7 +46,7 @@ const NotificationCard = ({ data, index, notificationState }) => {
     return (
         <div className={"p-6 border-b border-grey border-l-black" + (!seen ? "border-l-2" : "" )}>
             <div className="flex gap-5 mb-3">
-                <img src={profile_img} className="w-14 h-14 flex-none rounded-full" />
+                <img src={profile_img} className="w-14 h-14 flex-none rounded-full" alt="User" />
                 <div className="w-full">
                     <h1 className="font-medium text-xl text-dark-grey">
                         <span className="lg:inline-block hidden capitalize">{fullname}</span>
@@ -110,7 +110,7 @@ const NotificationCard = ({ data, index, notificationState }) => {
                 reply ? 
                 <div className="ml-20 p-5 bg-grey mt-5 rounded-md">
                     <div className="flex gap-3 mb-3">
-                        <img src={author_profile_img} className="w-8 h-8 rounded-full" />
+                        <img src={author_profile_img} className="w-8 h-8 rounded-full" alt="Author" />
 
                         <div>
                             <h1 className="font-medium text-xl text-dark-grey">

@@ -115,7 +115,7 @@ const UserAuthForm = ( {type} ) => {
 
                     <InputBox 
                         name="email"
-                        type="text"
+                        type="email"
                         placeholder="Email"
                         icon="mail"
                     />
@@ -144,7 +144,7 @@ const UserAuthForm = ( {type} ) => {
                     <button className="btn-dark flex items-center justify-center gap-4 w-[90%] center"
                         onClick={handleGoogleAuth}
                     >
-                        <img src={googleIcon} className="w-5" />
+                        <img src={googleIcon} className="w-5" alt="Google" />
                         continue with google
                     </button>
 

@@ -5,7 +5,7 @@ import LoginAttempt from '../Schema/LoginAttempt.js';
 import AuthCode from '../Schema/AuthCode.js';
 import passport from 'passport';
 import { emailRegex, passwordRegex } from '../utils/regex.js';
-import { formatDatatoSend, generateUsername } from '../utils/helpers.js';
+import { generateUsername } from '../utils/helpers.js';
 import { generateTokenPair, generateAccessToken, verifyRefreshToken } from '../services/token.service.js';
 import { generateOtp, verifyOtp } from '../services/otp.service.js';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.service.js';

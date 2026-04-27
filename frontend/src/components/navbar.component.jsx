@@ -63,7 +63,7 @@ const Navbar = () => {
             <nav className="navbar z-50">
 
                 <Link to="/" className="flex-none w-16">
-                    <img src={ theme === "light" ? darkLogo : lightLogo } className="w-full"/>
+                    <img src={ theme === "light" ? darkLogo : lightLogo } className="w-full" alt="Notelys logo"/>
                 </Link>
 
                 <div className={"absolute bg-white w-full left-0 top-full mt-0.5 border-b border-grey py-4 px-[5vw] md:border-0     md:block md:relative md:inset-0 md:p-0 md:w-auto md:show " + (searchBoxVisibility ? "show" : "hide")}>
@@ -113,7 +113,7 @@ const Navbar = () => {
                             <div className="relative" onClick={handleUserNavPanel} onBlur={handleBlur}>
                                 <button className="w-12 h-12 mt-1">
                                     <img src={profile_img} 
-                                    className="w-full h-full object-cover rounded-full"/>
+                                    className="w-full h-full object-cover rounded-full" alt="Profile"/>
                                 </button>
 
                                 {

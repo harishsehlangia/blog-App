@@ -165,7 +165,7 @@ const EditProfile = () => {
                                 <div className="w-full h-full absolute top-0 left-0 flex items-center justify-center text-white bg-black/50 opacity-0 hover:opacity-100 cursor-pointer">
                                     Upload Image
                                 </div>
-                                <img ref={profileImgEle} src={profile_img} />
+                                <img ref={profileImgEle} src={profile_img} alt="Profile" />
                             </label>
                             <input type="file" id="uploadImg" accept=".jpeg, .png, .jpg" hidden onChange={handleImagePreview} />
 

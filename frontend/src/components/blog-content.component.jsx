@@ -1,7 +1,7 @@
 const Img = ({ url, caption }) => {
     return (
         <div>
-            <img src={url} />
+            <img src={url} alt={caption || "Blog image"} />
             {
                 caption.length ? <p className="w-full text-center my-3 md:mb-12 text-base text-dark-grey">{cleanHTML(caption)}</p> : ""
             }
