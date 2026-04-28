@@ -4,8 +4,10 @@ export default {
     theme: {
 
         fontSize: {
+            'xs': '11px',
             'sm': '12px',
             'base': '14px',
+            'lg': '15px',
             'xl': '16px',
             '2xl': '20px',
             '3xl': '28px',
@@ -16,7 +18,8 @@ export default {
         extend: {
             fontFamily: {
               inter: ["'Inter'", "sans-serif"],
-              gelasio: ["'Gelasio'", "serif"]
+              gelasio: ["'Gelasio'", "serif"],
+              merriweather: ["'Merriweather'", "serif"],
             },
             colors: {
                 white:       'rgb(var(--c-white) / <alpha-value>)',
@@ -26,7 +29,30 @@ export default {
                 red:         'rgb(var(--c-red) / <alpha-value>)',
                 twitter:     'rgb(var(--c-twitter) / <alpha-value>)',
                 brand:       'rgb(var(--c-brand) / <alpha-value>)',
+                accent:      'rgb(var(--c-accent) / <alpha-value>)',
+                success:     'rgb(var(--c-success) / <alpha-value>)',
+                warning:     'rgb(var(--c-warning) / <alpha-value>)',
+                surface:     'rgb(var(--c-surface) / <alpha-value>)',
+                border:      'rgb(var(--c-border) / <alpha-value>)',
                 transparent: 'transparent',
+            },
+            boxShadow: {
+                'xs':   'var(--shadow-xs)',
+                'sm':   'var(--shadow-sm)',
+                'md':   'var(--shadow-md)',
+                'lg':   'var(--shadow-lg)',
+                'xl':   'var(--shadow-xl)',
+                'glow': 'var(--shadow-glow)',
+            },
+            borderRadius: {
+                'radius-sm':   'var(--radius-sm)',
+                'radius-md':   'var(--radius-md)',
+                'radius-lg':   'var(--radius-lg)',
+                'radius-xl':   'var(--radius-xl)',
+                'radius-full': 'var(--radius-full)',
+            },
+            transitionDuration: {
+                '250': '250ms',
             },
         },
 

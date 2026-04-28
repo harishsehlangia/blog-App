@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import api from "../common/api";
 import { storeInSession } from "../common/session";
 import { UserContext } from "../App";
+import Icon from "../components/Icon";
 
 
 const UserAuthForm = ( {type} ) => {
@@ -96,84 +97,130 @@ const UserAuthForm = ( {type} ) => {
         :
         <AnimationWrapper keyValue={type}>
             <section className="h-cover flex items-center justify-center">
-
-                <form id="formElement" className="w-[80%] max-w-[400px]">
-                    <h1 className="text-4xl font-gelasio capitalize text-center mb-24">
-                        {type == "sign-in" ? "Welcome back" : "Join us today"}
-                    </h1>
-
-                    {
-                        type != "sign-in" ?
-                        <InputBox 
-                            name="fullname"
-                            type="text"
-                            placeholder="full name"
-                            icon="person"
-                        />
-                        : ""
-                    }
-
-                    <InputBox 
-                        name="email"
-                        type="email"
-                        placeholder="Email"
-                        icon="mail"
-                    />
-
-                    <InputBox 
-                        name="password"
-                        type="password"
-                        placeholder="Password"
-                        icon="key"
-                    />
-
-                    <button
-                        className="btn-dark center mt-14"
-                        type="submit"
-                        onClick={handleSubmit}
-                    >
-                        {type.replace("-", " ")}
-                    </button>
-
-                    <div className="relative w-full flex items-center gap-2 my-10 opacity-10 uppercase text-black font-bold">
-                        <hr className="w-1/2 border-black" />
-                        <p>or</p>
-                        <hr className="w-1/2 border-black" />
+                <div className="flex w-full max-w-[900px] mx-auto max-lg:flex-col">
+                    
+                    {/* Left: Brand panel */}
+                    <div className="hidden lg:flex flex-col justify-center flex-1 pr-16">
+                        <div className="mb-8">
+                            <span className="inline-block px-3 py-1 rounded-full bg-brand/10 text-brand text-sm font-semibold mb-6">
+                                {type == "sign-in" ? "Welcome back" : "Get started free"}
+                            </span>
+                            <h1 className="text-5xl font-bold leading-tight mb-4">
+                                {type == "sign-in" 
+                                    ? <>Where ideas <br/><span className="text-brand">come alive.</span></> 
+                                    : <>Start your <br/><span className="text-brand">writing journey.</span></>
+                                }
+                            </h1>
+                            <p className="text-dark-grey text-2xl leading-relaxed">
+                                {type == "sign-in" 
+                                    ? "Sign in to discover stories, share your perspective, and connect with a community of thinkers."
+                                    : "Join a community of writers and readers. Share your stories with the world."
+                                }
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-6 text-dark-grey">
+                            <div className="flex items-center gap-2">
+                                <Icon name="edit_note" className="text-brand" />
+                                <span className="text-sm">Rich Editor</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Icon name="dark_mode" className="text-brand" />
+                                <span className="text-sm">Dark Mode</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Icon name="notifications" className="text-brand" />
+                                <span className="text-sm">Real-time</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <button className="btn-dark flex items-center justify-center gap-4 w-[90%] center"
-                        onClick={handleGoogleAuth}
-                    >
-                        <img src={googleIcon} className="w-5" alt="Google" />
-                        continue with google
-                    </button>
+                    {/* Right: Auth form */}
+                    <div className="w-full max-w-[400px] lg:max-w-[420px] mx-auto lg:mx-0">
+                        <form id="formElement" className="w-full bg-surface border border-border rounded-radius-xl p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-lg)' }}>
+                            <h1 className="text-3xl font-bold mb-2 lg:hidden">
+                                {type == "sign-in" ? "Welcome back" : "Join us today"}
+                            </h1>
+                            <h1 className="text-2xl font-bold mb-2 hidden lg:block">
+                                {type == "sign-in" ? "Sign in to Notelys" : "Create your account"}
+                            </h1>
+                            <p className="text-dark-grey text-sm mb-8">
+                                {type == "sign-in" ? "Enter your credentials to continue" : "Fill in your details to get started"}
+                            </p>
 
-                    {
-                    
-                    type == "sign-in" ?
-                    <>
-                        <p className="mt-6 text-dark-grey text-xl text-center">
-                            Don't have an account ?
-                            <Link to="/signup" className="underline text-black text-xl ml-1">
-                                Join us today
-                            </Link>
-                        </p>
-                        <p className="mt-3 text-dark-grey text-base text-center">
-                            <Link to="/forgot-password" className="underline text-black">
-                                Forgot password?
-                            </Link>
-                        </p>
-                    </>
-                    :
-                    <p className="mt-6 text-dark-grey text-xl text-center">
-                        Already a member ?
-                        <Link to="/signin" className="underline text-black text-xl ml-1">
-                            Sign in here.
-                        </Link>
-                    </p>
-                    
-                    }
-                </form>
+                            {
+                                type != "sign-in" ?
+                                <InputBox 
+                                    name="fullname"
+                                    type="text"
+                                    placeholder="Full name"
+                                    icon="person"
+                                />
+                                : ""
+                            }
+
+                            <InputBox 
+                                name="email"
+                                type="email"
+                                placeholder="Email"
+                                icon="mail"
+                            />
+
+                            <InputBox 
+                                name="password"
+                                type="password"
+                                placeholder="Password"
+                                icon="key"
+                            />
+
+                            <button
+                                className="btn-dark center mt-6 w-full"
+                                type="submit"
+                                onClick={handleSubmit}
+                            >
+                                {type.replace("-", " ")}
+                            </button>
+
+                            <div className="relative w-full flex items-center gap-2 my-8 opacity-10 uppercase text-black font-bold">
+                                <hr className="w-1/2 border-black" />
+                                <p className="text-sm">or</p>
+                                <hr className="w-1/2 border-black" />
+                            </div>
+
+                            <button className="flex items-center justify-center gap-3 w-full py-3 px-6 rounded-full border border-border bg-white hover:bg-grey text-black font-medium transition-all hover:shadow-sm"
+                                onClick={handleGoogleAuth}
+                            >
+                                <img src={googleIcon} className="w-5 h-5" alt="Google" />
+                                Continue with Google
+                            </button>
+
+                            {
+                            
+                            type == "sign-in" ?
+                            <>
+                                <p className="mt-6 text-dark-grey text-sm text-center">
+                                    Don't have an account?
+                                    <Link to="/signup" className="text-brand font-semibold ml-1 hover:underline">
+                                        Sign up
+                                    </Link>
+                                </p>
+                                <p className="mt-2 text-dark-grey text-sm text-center">
+                                    <Link to="/forgot-password" className="text-dark-grey hover:text-brand transition-colors">
+                                        Forgot password?
+                                    </Link>
+                                </p>
+                            </>
+                            :
+                            <p className="mt-6 text-dark-grey text-sm text-center">
+                                Already a member?
+                                <Link to="/signin" className="text-brand font-semibold ml-1 hover:underline">
+                                    Sign in
+                                </Link>
+                            </p>
+                            
+                            }
+                        </form>
+                    </div>
+                </div>
 
         </section>
         </AnimationWrapper>

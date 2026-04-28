@@ -12,6 +12,7 @@ import NoDataMessage from "../components/nodata.component";
 import LoadMoreDataBtn from "../components/load-more.component";
 import InPageNavigation from "../components/inpage-navigation.component";
 import PageNotFound from "./404.page";
+import Icon from "../components/Icon";
 
 export const profileDataStructure = {
     personal_info: {
@@ -114,26 +115,43 @@ const ProfilePage = () => {
         ) : (
             profile_username.length ? 
                 <section className="h-cover md:flex flex-row-reverse items-start gap-5 min-[1100px]:gap-12">
-                    <div className="flex flex-col max-md:items-center gap-5 min-w-[250px] md:w-[50%] md:pl-8 md:border-l border-grey md:sticky md:top-[100px] md:py-10 ">
-                    <img
-                        src={profile_img}
-                        className="w-48 h-48 bg-grey rounded-full md:w-32 md:h-32"
-                    />
+                    <div className="flex flex-col max-md:items-center gap-5 min-w-[250px] md:w-[50%] md:pl-8 md:border-l border-border md:sticky md:top-[100px] md:py-10 ">
+                    
+                    {/* Avatar with gradient ring */}
+                    <div className="relative">
+                        <div className="w-48 h-48 md:w-32 md:h-32 rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, rgb(var(--c-brand)), rgb(var(--c-accent)))' }}>
+                            <img
+                                src={profile_img}
+                                className="w-full h-full rounded-full border-[3px] border-white"
+                                alt={fullname}
+                            />
+                        </div>
+                    </div>
 
-                    <h1 className="text-2xl font-medium">@{profile_username}</h1>
-                    <p className="text-xl capitalize h-6">{fullname}</p>
+                    <h1 className="text-2xl font-bold">@{profile_username}</h1>
+                    <p className="text-xl capitalize text-dark-grey">{fullname}</p>
 
-                    <p>
-                        {total_posts.toLocaleString()} Blogs -{" "}
-                        {total_reads.toLocaleString()} Reads
-                    </p>
+                    {/* Stats badges */}
+                    <div className="flex gap-3">
+                        <div className="flex items-center gap-2 bg-grey rounded-full py-2 px-4">
+                            <Icon name="article" className="text-brand text-xl" />
+                            <span className="font-semibold">{total_posts.toLocaleString()}</span>
+                            <span className="text-dark-grey text-sm">Posts</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-grey rounded-full py-2 px-4">
+                            <Icon name="visibility" className="text-brand text-xl" />
+                            <span className="font-semibold">{total_reads.toLocaleString()}</span>
+                            <span className="text-dark-grey text-sm">Reads</span>
+                        </div>
+                    </div>
 
                     <div className="flex gap-4 mt-2">
                         {profileId == username ? (
                         <Link
                             to="/settings/edit-profile"
-                            className="btn-light rounded-md"
+                            className="btn-light rounded-radius-md flex items-center gap-2"
                         >
+                            <Icon name="edit" className="text-xl" />
                             Edit Profile
                         </Link>
                         ) : (
@@ -163,7 +181,7 @@ const ProfilePage = () => {
                             return (
                                 <AnimationWrapper
                                 key={i}
-                                transition={{ duration: 1, delay: i * 0.1 }}
+                                transition={{ duration: 0.4, delay: i * 0.05 }}
                                 >
                                 <BlogPostCard
                                     content={blog}

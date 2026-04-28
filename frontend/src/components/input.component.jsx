@@ -23,7 +23,7 @@ const InputBox = ({ name, type, id, value, placeholder, icon, disable=false, cla
                 type == "password" ?
                 <Icon 
                     name={!passwordVisible ? "visibility_off" : "visibility"} 
-                    className="input-icon left-[auto] right-4 cursor-pointer"
+                    className="input-icon left-[auto] right-4 cursor-pointer hover:text-brand transition-colors"
                     ariaLabel={passwordVisible ? "Hide password" : "Show password"}
                     onClick={()=>setPasswordVisible(currentVal => !currentVal)}
                 />

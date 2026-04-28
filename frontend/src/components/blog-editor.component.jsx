@@ -5,13 +5,14 @@ import AnimationWrapper from "../common/page-animation";
 import lightBanner from "../imgs/blog banner light.png";
 import darkBanner from "../imgs/blog banner dark.png";
 import { uploadImage } from "../common/aws";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import { EditorContext } from "../pages/editor.pages";
 import EditorJS from "@editorjs/editorjs";
 import { tools } from "./tools.component";
 import api from "../common/api";
 import { ThemeContext, UserContext } from "../App";
+import Icon from "./Icon";
 
 const BlogEditor = () => {
 
@@ -24,13 +25,18 @@ const BlogEditor = () => {
 
     let navigate = useNavigate();
 
+    // Calculate word count from title
+    const wordCount = useMemo(() => {
+        return title ? title.split(/\s+/).filter(Boolean).length : 0;
+    }, [title]);
+
     useEffect(() => {
         if(!textEditor){
             setTextEditor(new EditorJS({
                 holder: "textEditor",
                 data: Array.isArray(content) ? content[0] : content,
                 tools: tools,
-                placeholder: "Let's write an awsome story"
+                placeholder: "Let's write an awesome story"
             }));
         }
     }, [])
@@ -83,11 +89,11 @@ const BlogEditor = () => {
     const handlePublishEvent = () => {
 
         if(!banner.length){
-            return toast.error("upload a blog banner to publish it");
+            return toast.error("Upload a blog banner to publish it");
         }
 
         if(!title.length){
-            return toast.error("write blog tittle to publish it");
+            return toast.error("Write blog title to publish it");
         }
 
         if(textEditor?.isReady){
@@ -96,7 +102,7 @@ const BlogEditor = () => {
                     setBlog({ ...blog, content: data });
                     setEditorState("publish")
                 }else {
-                    return toast.error("write something in you blog to publish it")
+                    return toast.error("Write something in your blog to publish it")
                 }
             })
             .catch((err) => {
@@ -156,12 +162,17 @@ const BlogEditor = () => {
                 <Link to="/" className="flex-none w-16" >
                     <img src={ theme === "light" ? darkLogo : lightLogo } alt="Notelys logo" />
                 </Link>
-                <p className="max-md:hidden text-black line-clamp-1 w-full">
+                <p className="max-md:hidden text-black line-clamp-1 w-full font-medium">
                     { title.length ? title : "New Blog" }
                 </p>
 
+                {/* Word count indicator */}
+                <p className="max-md:hidden text-dark-grey text-sm whitespace-nowrap">
+                    {wordCount} {wordCount === 1 ? 'word' : 'words'}
+                </p>
+
                 <div className="flex gap-4 ml-auto">
-                    <button className="btn-dark py-2"
+                    <button className="btn-brand py-2 px-6"
                         onClick={handlePublishEvent}
                     >
                         Publish
@@ -177,13 +188,19 @@ const BlogEditor = () => {
             <AnimationWrapper>
                 <section>
                     <div className="mx-auto max-w-[900px] w-full">
-                        <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
-                            <label htmlFor="uploadbanner">
+                        <div className="relative aspect-video hover:opacity-80 bg-surface border-2 border-dashed border-border rounded-radius-lg overflow-hidden cursor-pointer group transition-all hover:border-brand/40">
+                            <label htmlFor="uploadbanner" className="cursor-pointer">
                                 <img
                                     src={banner}
                                     className="z-20"
                                     onError={handleImgError}
                                     />
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                                    <div className="bg-white/90 backdrop-blur-sm rounded-full py-2 px-5 flex items-center gap-2 shadow-md">
+                                        <Icon name="add_photo_alternate" className="text-xl text-brand" />
+                                        <span className="text-sm font-medium">Change Cover</span>
+                                    </div>
+                                </div>
                                 <input
                                     id="uploadbanner"
                                     type="file"
@@ -198,14 +215,14 @@ const BlogEditor = () => {
                         <textarea
                             defaultValue={title}
                             placeholder="Blog Title"
-                            className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40 bg-white"
+                            className="text-4xl font-bold w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-30 bg-white"
                             onKeyDown={handleTitleKeyDown}
                             onChange={handleTitleChange}
                         ></textarea>
 
                         <hr className="w-full opacity-10 my-5" />
 
-                        <div id="textEditor" className="font-gelasio"></div>
+                        <div id="textEditor" className="font-merriweather"></div>
 
                     </div>
                 </section>

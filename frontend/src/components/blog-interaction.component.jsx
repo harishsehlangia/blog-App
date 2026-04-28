@@ -55,17 +55,26 @@ const BlogInteraction = () => {
         }
     }
 
+    const handleShare = async () => {
+        try {
+            await navigator.clipboard.writeText(location.href);
+            toast.success("Link copied to clipboard!");
+        } catch {
+            toast.error("Failed to copy link");
+        }
+    }
+
     return (
         <>
 
-            <hr className="border-grey my-2" />
+            <hr className="border-border my-2" />
 
-            <div className="flex gap-6 justify-between">
+            <div className="flex gap-6 justify-between py-1">
                 <div className="flex gap-3 items-center">
 
                     <button 
                         onClick={handleLike}
-                        className={"w-10 h-10 rounded-full flex items-center justify-center " + ( isLikedByUser ? "bg-red/20 text-red" : "bg-grey/80" )}
+                        className={"w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 " + ( isLikedByUser ? "bg-red/10 text-red" : "bg-grey hover:bg-grey/80" )}
                     >
                         <Icon name="favorite" filled={isLikedByUser} />
                     </button>
@@ -74,7 +83,7 @@ const BlogInteraction = () => {
 
                     <button 
                         onClick={() => setCommentsWrapper(preVal => !preVal)}
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-grey/80"
+                        className="w-10 h-10 rounded-full flex items-center justify-center bg-grey hover:bg-grey/80 transition-colors"
                     >
                         <Icon name="chat_bubble" />
                     </button>
@@ -86,18 +95,29 @@ const BlogInteraction = () => {
 
                     {
                         username == author_username ?
-                        <Link to={`/editor/${blog_id}`} className="underline hover:text-brand">Edit</Link> : ""
+                        <Link to={`/editor/${blog_id}`} className="text-dark-grey hover:text-brand transition-colors flex items-center gap-1.5 text-sm font-medium">
+                            <Icon name="edit" className="text-xl" />
+                            Edit
+                        </Link> : ""
                     }
 
-                    <Link to={`https://x.com/intent/tweet?text=Read${title}&url=${location.href}`} aria-label="Share on X">
-                        <svg role="img" viewBox="0 0 24 24" className="w-5 h-5 fill-current text-dark-grey hover:text-black" xmlns="http://www.w3.org/2000/svg">
+                    <button 
+                        onClick={handleShare}
+                        className="text-dark-grey hover:text-brand transition-colors flex items-center gap-1.5 text-sm font-medium"
+                    >
+                        <Icon name="link" className="text-xl" />
+                        Share
+                    </button>
+
+                    <Link to={`https://x.com/intent/tweet?text=Read${title}&url=${location.href}`} aria-label="Share on X" className="text-dark-grey hover:text-black transition-colors">
+                        <svg role="img" viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
                         </svg>
                     </Link>
                 </div>
             </div>
 
-            <hr className="border-grey my-2" />
+            <hr className="border-border my-2" />
         </>
     )
 }

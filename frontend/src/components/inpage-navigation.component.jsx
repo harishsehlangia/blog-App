@@ -43,7 +43,7 @@ const InPageNavigation = ({ routes, defaultHidden = [], defaultActiveIndex = 0, 
     
     return(
         <>
-            <div className="relative mb-8 bg-white border-b border-grey flex flex-nowrap overflow-x-auto">
+            <div className="relative mb-8 bg-white border-b border-border flex flex-nowrap overflow-x-auto">
 
                 {/* Create buttons "home" & "trending blogs" */}
                 {
@@ -52,7 +52,7 @@ const InPageNavigation = ({ routes, defaultHidden = [], defaultActiveIndex = 0, 
                             <button
                             ref={ i == defaultActiveIndex ? activeTabRef : null }
                             key={i}
-                            className={"p-4 px-5 capitalize " + ( inPageNavIndex == i ? "text-black" : "text-dark-grey " ) + (defaultHidden.includes(route) ? "md:hidden " : " ")}
+                            className={"p-4 px-5 capitalize font-medium text-sm tracking-wide " + ( inPageNavIndex == i ? "text-black" : "text-dark-grey hover:text-black/70 " ) + (defaultHidden.includes(route) ? "md:hidden " : " ") + "transition-colors"}
                             onClick={(e) => { changePageState(e.target, i) }}
                             >
                                 { route }
@@ -61,7 +61,7 @@ const InPageNavigation = ({ routes, defaultHidden = [], defaultActiveIndex = 0, 
                     })
                 }
 
-                <hr ref={activeTabLineRef} className="absolute bottom-0 duration-300 border-dark-grey" />
+                <hr ref={activeTabLineRef} className="absolute bottom-0 duration-300 border-brand border-[1.5px] rounded-full" />
 
             </div>
             
