@@ -1,6 +1,6 @@
 import api from "../common/api";
 import usePageTitle from "../common/usePageTitle";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnimationWrapper from "../common/page-animation";
 import Loader from "../components/loader.component";
@@ -32,10 +32,27 @@ const BlogPage = () => {
     const [ isLikedByUser, setLikedByUser ] = useState(false);
     const [ commentsWrapper, setCommentsWrapper ] = useState(false);
     const [ totalParentCommentsLoaded, setTotalParentCommentsLoaded ] = useState(0);
+    const [ readingProgress, setReadingProgress ] = useState(0);
 
     let { title, content, banner, author: { personal_info: { fullname, username: author_username, profile_img } }, publishedAt } = blog;
 
     usePageTitle(title || 'Blog');
+
+    // Reading progress bar
+    const handleScroll = useCallback(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+            setReadingProgress((scrollTop / docHeight) * 100);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!loading) {
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            return () => window.removeEventListener('scroll', handleScroll);
+        }
+    }, [loading, handleScroll]);
 
     const fetchBlog = () => {
         api.post("/get-blog", { blog_id })
@@ -73,6 +90,7 @@ const BlogPage = () => {
         setLikedByUser(false);
         setCommentsWrapper(false);
         setTotalParentCommentsLoaded(0);
+        setReadingProgress(0);
     }
 
     return (
@@ -82,34 +100,39 @@ const BlogPage = () => {
                 :
                 <BlogContext.Provider value={{ blog, setBlog, isLikedByUser, setLikedByUser, commentsWrapper, setCommentsWrapper, totalParentCommentsLoaded, setTotalParentCommentsLoaded }}>
 
+                    {/* Reading Progress Bar */}
+                    <div 
+                        className="reading-progress" 
+                        style={{ width: `${readingProgress}%` }}
+                    />
+
                     <CommentsContainer />
                     
                     <div className="max-w-[900px] center py-10 max-lg:px-[5vw]">
 
-                        <img src={banner} className="aspect-video" alt={title} />
+                        <img src={banner} className="aspect-video rounded-radius-lg" alt={title} />
 
                         <div className="mt-12">
                             <h2>{title}</h2>
 
                             <div className="flex max-sm:flex-col justify-between my-8">
                                 <div className="flex gap-5 items-start">
-                                    <img src={profile_img} className="w-12 h-12 rounded-full" alt={fullname}/>
+                                    <img src={profile_img} className="w-12 h-12 rounded-full border-2 border-border" alt={fullname}/>
 
                                     <p className="capitalize">
                                         {fullname}
                                         <br />
-                                        @
-                                        <Link to={`/user/${author_username}`} className="underline">{author_username}</Link>
+                                        <Link to={`/user/${author_username}`} className="text-dark-grey text-sm hover:text-brand transition-colors">@{author_username}</Link>
                                     </p>
 
                                 </div>
-                                <p className="text-dark-grey opacity-75 max-sm:mt-6 max-sm:ml-12 max-sm:pl-5">Published on {getDay(publishedAt)}</p>
+                                <p className="text-dark-grey opacity-75 max-sm:mt-6 max-sm:ml-12 max-sm:pl-5 text-sm">Published on {getDay(publishedAt)}</p>
                             </div>
                         </div>
 
                         <BlogInteraction />
                         
-                        <div className="my-12 font-gelasio blog-page-content">
+                        <div className="my-12 font-merriweather blog-page-content" style={{ lineHeight: '1.9' }}>
                             {
                                 (content?.[0]?.blocks || content?.blocks || []).map((block, i) => {
                                     return <div key={i} className="my-4 md:my-8">
@@ -124,14 +147,16 @@ const BlogPage = () => {
                         {
                             similarBlogs != null && similarBlogs.length ?
                                 <>
-                                    <h1 className="text-2xl mt-14 mb-10 font-medium">Similar Blogs</h1>
+                                    <h1 className="text-2xl mt-14 mb-10 font-semibold flex items-center gap-2">
+                                        Similar Blogs
+                                    </h1>
 
                                     {
                                         similarBlogs.map((blog, i) => {
 
                                             let { author: { personal_info } } = blog;
 
-                                            return <AnimationWrapper key={i} transition={{duration: 1, delay: i*0.08}}>
+                                            return <AnimationWrapper key={i} transition={{duration: 0.4, delay: i*0.05}}>
                                                 <BlogPostCard content={blog} author={personal_info} />
                                             </AnimationWrapper>
 

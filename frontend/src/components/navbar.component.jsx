@@ -65,11 +65,11 @@ const Navbar = () => {
                     <img src={ theme === "light" ? darkLogo : lightLogo } className="w-full" alt="Notelys logo"/>
                 </Link>
 
-                <div className={"absolute bg-white w-full left-0 top-full mt-0.5 border-b border-grey py-4 px-[5vw] md:border-0     md:block md:relative md:inset-0 md:p-0 md:w-auto md:show " + (searchBoxVisibility ? "show" : "hide")}>
+                <div className={"absolute bg-white/90 backdrop-blur-lg w-full left-0 top-full mt-0.5 border-b border-border py-4 px-[5vw] md:border-0 md:block md:relative md:inset-0 md:p-0 md:w-auto md:show md:bg-transparent md:backdrop-blur-none " + (searchBoxVisibility ? "show" : "hide")}>
                     <input 
                         type="text"
                         placeholder="Search"
-                        className="w-full md:w-auto bg-grey p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-dark-grey   md:pl-12"
+                        className="w-full md:w-auto bg-grey p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-dark-grey md:pl-12 border border-transparent focus:border-border focus:bg-surface transition-all"
                         onKeyDown={handleSearch}  
                     />
 
@@ -77,20 +77,21 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center gap-3 md:gap-6 ml-auto">
-                    <button className="md:hidden bg-grey w-12 h-12 rounded-full flex items-center justify-center"
+                    <button className="md:hidden bg-grey w-12 h-12 rounded-full flex items-center justify-center hover:bg-grey/80 transition-colors"
                     onClick={()=>setSearchBoxVisibility(currentVal => !currentVal)}
                     >
                         <Icon name="search" className="text-xl" />
                     </button>
 
-                    <Link to="/editor" className="hidden md:flex gap-2 link items-center">
+                    <Link to="/editor" className="hidden md:flex gap-2 items-center btn-brand py-2 px-5 text-base">
                         <Icon name="edit_note" />
                         <p>Write</p>
                     </Link>
 
                     <button 
-                        className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10 flex items-center justify-center"
+                        className="w-12 h-12 rounded-full bg-grey relative hover:bg-grey/80 flex items-center justify-center transition-colors"
                         onClick={changeTheme}
+                        aria-label="Toggle theme"
                     >
                         <Icon name={theme === "light" ? "dark_mode" : "light_mode"} className="text-2xl" />
                     </button>
@@ -100,11 +101,11 @@ const Navbar = () => {
                         access_token ?
                         <>
                             <Link to="/dashboard/notifications">
-                                <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10 flex items-center justify-center">
+                                <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-grey/80 flex items-center justify-center transition-colors">
                                     <Icon name="notifications" className="text-2xl" />
                                     {
                                         new_notification_available ? 
-                                        <span className="bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2"></span> : " "
+                                        <span className="notification-badge"></span> : " "
                                     }
                                 </button>
                             </Link>
@@ -112,7 +113,7 @@ const Navbar = () => {
                             <div className="relative" onClick={handleUserNavPanel} onBlur={handleBlur}>
                                 <button className="w-12 h-12 mt-1">
                                     <img src={profile_img} 
-                                    className="w-full h-full object-cover rounded-full" alt="Profile"/>
+                                    className="w-full h-full object-cover rounded-full border-2 border-border hover:border-brand transition-colors" alt="Profile"/>
                                 </button>
 
                                 {

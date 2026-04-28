@@ -31,6 +31,18 @@ const HomePage = () => {
     "fitness",
   ];
 
+  const categoryEmojis = {
+    mindset: "🧠",
+    cooking: "🍳",
+    growth: "📈",
+    life: "🌱",
+    "social media": "📱",
+    "mental health": "💆",
+    discipline: "🎯",
+    lifestyle: "✨",
+    fitness: "💪",
+  };
+
   const fetchLatestBlogs = ({page = 1}) => {
     api
       .post("/latest-blogs", { page })
@@ -79,7 +91,7 @@ const HomePage = () => {
   };
 
   const loadBlogByCategory = (e) => {
-    let category = e.target.innerText.toLowerCase();
+    let category = e.target.innerText.replace(/^.\s/, '').toLowerCase();
 
     setBlogs(null);
 
@@ -124,7 +136,7 @@ const HomePage = () => {
                     return (
                         <AnimationWrapper
                         key={blog.blog_id}
-                        transition={{ duration: 1, delay: i * 0.1 }}
+                        transition={{ duration: 0.4, delay: i * 0.05 }}
                         >
                         <BlogPostCard
                             content={blog}
@@ -148,7 +160,7 @@ const HomePage = () => {
                         return (
                         <AnimationWrapper
                             key={blog.blog_id}
-                            transition={{ duration: 1, delay: i * 0.1 }}
+                            transition={{ duration: 0.4, delay: i * 0.05 }}
                         >
                             <MinimalBlogPost blog={blog} index={i} />
                         </AnimationWrapper>
@@ -160,25 +172,26 @@ const HomePage = () => {
         </div>
 
         {/* filter and trending blogs div */}
-        <div className="min-w-[40%] lg:min-w-[400px] max-w-min border-l border-grey pl-8 pt-3 max-md:hidden">
+        <div className="min-w-[40%] lg:min-w-[400px] max-w-min border-l border-border pl-8 pt-3 max-md:hidden">
           <div className="flex flex-col gap-10">
             <div>
-              <h1 className="font-medium text-xl mb-8">
-                Stories from all interests
+              <h1 className="font-semibold text-xl mb-8 flex items-center gap-2">
+                <Icon name="explore" className="text-brand" />
+                Discover Topics
               </h1>
 
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex gap-2.5 flex-wrap">
                 {categories.map((category, i) => {
                   return (
                     <button
                       onClick={loadBlogByCategory}
                       className={
-                        "tag" +
-                        (pageState == category ? " bg-black text-white " : " ")
+                        "tag " +
+                        (pageState == category ? "active" : "")
                       }
                       key={i}
                     >
-                      {category}
+                      {categoryEmojis[category]} {category}
                     </button>
                   );
                 })}
@@ -186,8 +199,9 @@ const HomePage = () => {
             </div>
 
             <div>
-              <h1 className="font-medium text-xl mb-8">
-                Trending <Icon name="trending_up" />
+              <h1 className="font-semibold text-xl mb-8 flex items-center gap-2">
+                <Icon name="trending_up" className="text-brand" />
+                Trending
               </h1>
 
               {trendingBlogs == null ? (
@@ -198,7 +212,7 @@ const HomePage = () => {
                     return (
                         <AnimationWrapper
                         key={i}
-                        transition={{ duration: 1, delay: i * 0.1 }}
+                        transition={{ duration: 0.4, delay: i * 0.05 }}
                         >
                         <MinimalBlogPost blog={blog} index={i} />
                         </AnimationWrapper>

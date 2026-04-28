@@ -113,31 +113,29 @@ const PublishForm = () => {
         <AnimationWrapper>
             <section className="w-screen min-h-screen grid items-center lg:grid-cols-2 py-16 lg:gap-4">
 
-
-
-                <button className="w-12 h-12 absolute right-[5vw] z-10 top-[5%] lg:top-[10%]"
+                <button className="w-10 h-10 absolute right-[5vw] z-10 top-[5%] lg:top-[10%] rounded-full bg-grey hover:bg-grey/80 flex items-center justify-center transition-colors"
                     onClick={handleCloseEvent}
                 >
                     <Icon name="close" />
                 </button>
 
-                <div className="max-w-[550px] center mt-2"> {/*---mt-2*/}
-                    <p className="text-dark-grey mb-1">Preview</p>
+                <div className="max-w-[550px] center mt-2">
+                    <p className="text-dark-grey mb-1 text-sm font-medium uppercase tracking-wider">Preview</p>
 
-                    <div className="w-full aspect-video rounded-lg overflow-hidden bg-grey mt-4">
+                    <div className="w-full aspect-video rounded-radius-lg overflow-hidden bg-grey mt-4">
                         <img src={banner} alt="Blog banner" />
                     </div>
 
-                    <h1 className="text-4xl font-medium mt-2 leading-tight line-clamp-2">{ title }</h1>
+                    <h1 className="text-4xl font-bold mt-4 leading-tight line-clamp-2">{ title }</h1>
 
-                    <p className="font-gelasio line-clamp-2 text-xl leading-7 mt-4">{ des }</p>
+                    <p className="font-merriweather line-clamp-2 text-xl leading-7 mt-4 text-dark-grey">{ des }</p>
                 </div>
 
-                <div className="border-grey lg:border-1 lg:pl-8">
-                    <p className="text-dark-grey mb-2 mt-9">Blog Title</p>
+                <div className="border-border lg:border-l lg:pl-8">
+                    <p className="text-dark-grey mb-2 mt-9 text-sm font-medium">Blog Title</p>
                     <input type="text" placeholder="Blog Title" defaultValue={title} className="input-box pl-4" onChange={handleBlogTitleChange}/>
 
-                    <p className="text-dark-grey mb-2 mt-9">Short description about your blog</p>
+                    <p className="text-dark-grey mb-2 mt-9 text-sm font-medium">Short description about your blog</p>
                     
                     <textarea
                         maxLength={CharacterLimit}
@@ -150,9 +148,9 @@ const PublishForm = () => {
 
                     <p className="mt-1 text-dark-grey text-sm text-right">{ CharacterLimit - des.length } characters left</p>
 
-                    <p className="text-dark-grey mb-2 mt-9">Topics - ( Helps in searching and ranking your blog post )</p>
+                    <p className="text-dark-grey mb-2 mt-9 text-sm font-medium">Topics — Helps in searching and ranking your blog post</p>
 
-                    <div className="relative input-box pl-2 py-2 pb-4 ">
+                    <div className="relative input-box pl-2 py-2 pb-4">
                         <input type="text" placeholder="Topic" className="sticky input-box bg-white top-0 left-0 pl-4 mb-3 focus:bg-white"
                         onKeyDown={handleTagkeyDown}
                         />
@@ -164,9 +162,9 @@ const PublishForm = () => {
                         }
                     </div>
 
-                    <p className="mt-1 mb-4 text-dark-grey text-right">{ tagLimit - tags.length } Tags left</p>
+                    <p className="mt-1 mb-6 text-dark-grey text-sm text-right">{ tagLimit - tags.length } Tags left</p>
 
-                    <button className="btn-dark px-8"
+                    <button className="btn-brand px-8"
                         onClick={publishBlog}
                     >Publish</button>
 

@@ -21,17 +21,19 @@
 [data-theme="dark"] .ce-block.ce-block--selected .cdx-block,
 [data-theme="dark"] .ce-block.ce-block--selected .ce-block__content,
 [data-theme="dark"] .ce-block.ce-block--focused .cdx-block {
-    background-color: #2A2A2A;
+    background-color: rgb(var(--c-grey));
 }
 
 [data-theme="dark"] .ce-inline-toolbar {
-    background-color: #2A2A2A;
-    border-color: #3A3A3A;
+    background-color: rgb(var(--c-grey));
+    border-color: rgb(var(--c-border));
     color: #F3F3F3;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
 }
 
 [data-theme="dark"] .cdx-marker {
-    background: rgba(214, 81, 0, 0.3);
+    background: rgba(235, 90, 0, 0.3);
     color: #F3F3F3;
 }
 
@@ -43,13 +45,13 @@
 [data-theme="dark"] .cdx-button,
 [data-theme="dark"] .image-tool__image,
 [data-theme="dark"] .ce-conversion-toolbar {
-    background-color: #2A2A2A;
-    border-color: #3A3A3A;
+    background-color: rgb(var(--c-grey));
+    border-color: rgb(var(--c-border));
     color: #F3F3F3;
 }
 
 [data-theme="dark"] .cdx-input {
-    border-color: #3A3A3A;
+    border-color: rgb(var(--c-border));
     color: #F3F3F3;
 }
 
@@ -57,5 +59,33 @@
 [data-theme="dark"] .ce-inline-toolbar__dropdown:hover,
 [data-theme="dark"] .ce-popover-item:hover,
 [data-theme="dark"] .ce-conversion-tool:hover {
-    background-color: #3A3A3A;
+    background-color: rgb(var(--c-border));
+}
+
+/* ── EditorJS Light Theme Polish ─────────────── */
+.ce-popover {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    border-color: rgb(var(--c-border));
+}
+
+.ce-inline-toolbar {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    border-color: rgb(var(--c-border));
+}
+
+.ce-toolbar__plus,
+.ce-toolbar__settings-btn {
+    border-radius: var(--radius-sm);
+    transition: background-color 0.15s ease;
+}
+
+.ce-toolbar__plus:hover,
+.ce-toolbar__settings-btn:hover {
+    background-color: rgb(var(--c-grey));
+}
+
+.ce-popover-item:hover {
+    background-color: rgb(var(--c-grey));
 }
