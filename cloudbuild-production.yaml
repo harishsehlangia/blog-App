@@ -1,0 +1,79 @@
+steps:
+  # ================= BACKEND =================
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/backend:$COMMIT_SHA',
+        '-f',
+        'server/Dockerfile',
+        'server'
+      ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/backend:$COMMIT_SHA'
+      ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run',
+        'deploy',
+        'notelys-api',
+        '--image',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/backend:$COMMIT_SHA',
+        '--region',
+        'us-central1',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated'
+      ]
+
+  # ================= FRONTEND =================
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+
+        '--build-arg', 'VITE_SERVER_DOMAIN=https://notelys-api-770359912258.us-central1.run.app/',
+
+        '-t',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/frontend:latest',
+
+        './frontend'
+      ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/frontend:latest'
+      ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run',
+        'deploy',
+        'notelys-web-production',
+        '--image',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/frontend:latest',
+        '--region',
+        'us-central1',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated'
+      ]
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/backend:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/notelys/frontend:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
