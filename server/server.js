@@ -32,6 +32,10 @@ server.use(express.json({ limit: '10mb' }));
 
 const allowedOrigins = [
     'http://localhost:5173',
+    'http://localhost:5174',
+    'https://notelys.org',
+    'https://www.notelys.org',
+    'https://dev.notelys.org',
     process.env.FRONTEND_URL,
 ].filter(Boolean);
 
